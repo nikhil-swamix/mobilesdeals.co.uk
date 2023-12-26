@@ -1,4 +1,6 @@
 import qs from 'query-string';
+export { goto } from '$app/navigation';
+export { page } from '$app/stores';
 export const qparse = (url) => {
 	let q = url?.search;
 	return qs.parse(q);
@@ -11,7 +13,10 @@ export const qstringify = (obj) => {
 }
 
 // getjson
-export const getjson = async (url) => {
+export const getjson = async (url,filters) => {
+    if(filters){
+        url = url + '?' + qstringify(filters);
+    }
     let res = await fetch(url);
     let json = await res.json();
     return json;

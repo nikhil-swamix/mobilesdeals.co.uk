@@ -1,6 +1,79 @@
 <script>
+	/* 
+	{
+        "_id": "6574166d981a5e3efc0c4948",
+        "product_name": "Three SIM Only on Value UNLIMITED (24 Month contract) with Unlimited 5G data. £29 a month.",
+        "common_name": "SIM Card Triple SIM ",
+        "colour": null,
+        "brand_name": "SIM Card",
+        "aw_deep_link": "https://www.awin1.com/pclick.php?p=36287795856&a=123501&m=10210",
+        "merchant_name": "Three",
+        "merchant_category": "SIM Card - PAYM",
+        "merchant_image_url": "https://media.bigupdata.co.uk/img_product_image_main_large1_reseller_product_edition0000006641.png?h=400&w=400&auto=enhance&auto=format&bg=FFFFFF&trim=color&trimcolor=FFFFFF&trim=auto&trimtol=2",
+        "merchant_thumb_url": "https://media.bigupdata.co.uk/img_product_image_main_large1_reseller_product_edition0000006641.png?h=150&w=150&auto=enhance&auto=format&bg=FFFFFF&trim=color&trimcolor=FFFFFF&trim=auto&trimtol=2",
+        "description": "A Triple SIM is a hybrid Standard SIM card with a snap-out Micro SIM and Nano SIM embedded in it. They work just the same, but are compatible with three times as many devices.",
+        "Telcos:device_full_name": "SIM Card Triple SIM",
+        "Telcos:network": "Three",
+        "Telcos:gift": null,
+        "Telcos:device_product_json": {
+            "product_type": "SIM Card",
+            "product_id": "314",
+            "product_brand": "SIM Card",
+            "product_brand_id": "49",
+            "product_name": "Triple SIM",
+            "product_type_id": "2"
+        },
+        "Telcos:device_product_version_json": {
+            "product_version_name": "",
+            "product_version_id": "663"
+        },
+        "Telcos:initial_cost": 0,
+        "Telcos:month_cost": 29,
+        "Telcos:tariff": "Value SIM Only UNLIMITED",
+        "Telcos:inc_minutes": null,
+        "Telcos:inc_texts": null,
+        "Telcos:connectivity": "5G",
+        "Telcos:inc_data": "Unlimited",
+        "Telcos:storage_size": "0",
+        "Telcos:deal_retailer_json": {
+            "logo_url": "https://media.bigupdata.co.uk/img_company_logo_large1_company0000000036.png",
+            "company_id": "36",
+            "terms_url": "http://www.three.co.uk/terms-conditions",
+            "name": "Three"
+        },
+        "Telcos:deal_type_json": {
+            "deal_type_name": "Consumer",
+            "deal_type_id": "0"
+        },
+        "Telcos:deal_cost_json": {
+            "tco_inc_vat": "696.00",
+            "monthly_device_final_term_exc_vat": "",
+            "upfront_inc_vat": "0.00",
+            "monthly_total_previous_inc_vat": "",
+            "tco_exc_vat": "580.00",
+            "ecpm_inc_vat": "29.00",
+            "monthly_device_final_term_months": "",
+            "ecpm_exc_vat": "24.17",
+            "upfront_exc_vat": "0.00",
+            "monthly_device_term_months": "",
+            "monthly_device_final_term_inc_vat": "",
+            "monthly_contract_term_months": "24",
+            "monthly_total_inc_vat": "29.00",
+            "monthly_device_inc_vat": "",
+            "upfront_previous_inc_vat": "",
+            "monthly_contract_inc_vat": "0.00",
+            "upfront_previous_exc_vat": "",
+            "monthly_contract_exc_vat": "",
+            "monthly_device_exc_vat": "",
+            "monthly_total_exc_vat": "24.17",
+            "monthly_total_previous_exc_vat": ""
+        },
+        "data_feed_id": 18901
+    },
+	*/
 	import { onMount } from 'svelte';
 	import * as lib from '$lib';
+	import { getCommonNames, getDistinctBrands, getDistinctTelcos, colormap } from '$lib/helpers';
 	export let data;
 
 	let commonNames = [];
@@ -9,21 +82,6 @@
 
 	let selections = {};
 
-	async function getDistinctBrands() {
-		let data = await lib.getjson('api/distinct/brand_name?' + lib.qstringify(selections));
-		console.log(data);
-		// SIM Card - remove
-		data = data.filter((brand) => brand != 'SIM Card');
-		return data;
-	}
-	async function getDistinctTelcos() {
-		let s = selections;
-		// delete s['Telcos:network'];
-		return await lib.getjson('api/distinct/Telcos:network?' + lib.qstringify(s));
-	}
-	async function getCommonNames() {
-		return await lib.getjson('api/distinct/common_name');
-	}
 	async function getDistinctColours() {
 		// remove null
 		return (await lib.getjson('api/distinct/colour?' + lib.qstringify(selections))).filter((c) => c != null);
@@ -32,27 +90,36 @@
 	async function getDistinctSizes() {
 		return await lib.getjson('api/distinct/Telcos:storage_size?' + lib.qstringify(selections));
 	}
+	async function getDistinctSimProviders() {
+		let providers = await lib.getjson('api/distinct/Telcos:network?Telcos:device_product_json.product_type=SIM%20Card' + lib.qstringify(selections));
+		let imgs = await Promise.all(
+			providers.map(async (element) => {
+				let resp = await lib.getjson(`api/find?Telcos:device_product_json.product_type=SIM%20Card&Telcos:network=${element}&limit=1`);
+				return { img: resp[0].merchant_thumb_url, filters: { 'Telcos:network': element, 'Telcos:device_product_json.product_type': 'SIM Card' } };
+			})
+		);
+		return imgs;
+	}
+	async function getDistinctBroadbandModels(ptype = 'Mobile Wi-Fi') {
+		let items = await lib.getjson('api/distinct/common_name?Telcos:device_product_json.product_type=Mobile Wi-Fi' + lib.qstringify(selections));
+		let imgs = await Promise.all(
+			items.map(async (element) => {
+				let resp = await lib.getjson(`api/find?Telcos:device_product_json.product_type=Mobile Wi-Fi&common_name=${element}&limit=1`);
+				return resp[0].merchant_thumb_url;
+			})
+		);
+		return imgs;
+	}
 
 	$: {
 		filterSearchResults(searchTerm);
-		console.log(selections);
+
+		if (selections['Telcos:network'] && selections.brand_name) {
+			// filterSearchResults(searchTerm);
+			window.location.href = `compare?${lib.qstringify(selections)}`;
+		}
 	}
 
-	let colormap = {
-		Black: '#000000',
-		Blue: '#0d6efd',
-		Gold: '#ffc107',
-		Green: '#198754',
-		Grey: '#6c757d',
-		Orange: '#ff7b00',
-		Pink: '#cf00cf',
-		Purple: '#6f42c1',
-		Red: '#dc3545',
-		'Rose Gold': '#f3e5f5',
-		Silver: '#ced4da',
-		White: '#ffffff',
-		Yellow: '#ffc107'
-	};
 	// [ "Three", "Vodafone", "iD Mobile" ] url pattern /img/networks/
 	let telcologomap = {
 		Three: 'img/networks/three.png',
@@ -67,37 +134,11 @@
 	}
 
 	let button;
-	let searchResults = '<p>No results found</p>';
 
 	onMount(async () => {
 		commonNames = await getCommonNames();
-
-		// console.log(commonNames); console.log(button?.offsetWidth);
-		const myParams = { foo: 'hi there', bar: '???' };
 	});
 </script>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-	<div class="container">
-		<a class="navbar-brand" href="#">Mobiles Deals UK - Ultimate Deals </a>
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarNav">
-			<ul class="navbar-nav ml-auto">
-				<li class="nav-item active">
-					<a class="nav-link" href="#"><i class="fas fa-mobile-alt"></i> Mobile Phones <span class="sr-only">(current)</span></a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="#"><i class="fas fa-sim-card"></i> SIM Only</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="#"><i class="fas fa-question-circle"></i> Help</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-</nav>
 
 <div class="container">
 	<div class=" mt-3" id="autocomplete-input">
@@ -151,8 +192,8 @@
 			<span class="visually-hidden">Next</span>
 		</button>
 	</div>
-	{#if selections && Object.keys(selections).length > 0}
-		<div class="mt-2" id="selections">
+	<div class="mt-2" id="selections">
+		{#if selections && Object.keys(selections).length > 0}
 			{#each Object.entries(selections) as [key, value] (key)}
 				<!-- create a button group -->
 				<div class="btn-group me-2 btn-group-sm">
@@ -162,8 +203,10 @@
 			{/each}
 			<!-- clear button -->
 			<button class="btn btn-danger btn-sm" on:click={() => (selections = {})}>Clear</button>
-		</div>
-	{/if}
+		{:else}
+			Please select a network and brand to start comparing
+		{/if}
+	</div>
 	<!-- SELECTORS -->
 	<div class="row flex-lg-row-reverse d-flex mt-3 gap-3 gap-lg-0 h-100">
 		<div class="col my-auto" id="how-to-shop">
@@ -180,13 +223,17 @@
 		{#key [selections['Telcos:network'], selections.brand_name]}
 			<div class="col-auto col-lg-8 mb-2">
 				<div class="list-group">
-					<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
+					<a
+						href="#"
+						class="list-group-item text-center list-group-item-action active {selections['Telcos:network'] ? 'bg-success' : 'bg-dark'} border-black bg-gradient fw-bold"
+						aria-current="true"
+					>
 						<i class="fa-duotone fa-wifi-2"></i>
 						SELECT NETWORK
 					</a>
 					<div class="list-group-item">
 						<div class="row justify-content-center">
-							{#await getDistinctTelcos() then value}
+							{#await getDistinctTelcos(selections) then value}
 								{#each value as telco}
 									<button
 										class="col-3 btn"
@@ -207,7 +254,11 @@
 	{#key selections}
 		<div class=" mt-3 brand-selector">
 			<div class="list-group">
-				<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
+				<a
+					href="#"
+					class="list-group-item text-center list-group-item-action active {selections['brand_name'] ? 'bg-success' : 'bg-dark'} border-black bg-gradient fw-bold"
+					aria-current="true"
+				>
 					<i class="fas fa-mobile-iphone"></i>
 					SELECT BRAND
 				</a>
@@ -219,7 +270,7 @@
 								<img src="img/brands/{selections.brand_name.toLowerCase()}.png" alt="Brand" class="img-fluid rounded shadow-sm p-2 w-100" />
 							</button>
 						{:else}
-							{#await getDistinctBrands() then value}
+							{#await getDistinctBrands(selections) then value}
 								{#each value as brand}
 									<button class="col-lg-auto col-auto btn mt-lg-2 px-1" on:click={() => (selections.brand_name = brand)}>
 										<img src="img/brands/{brand.toLowerCase()}.png" alt="Brand" class="img-fluid rounded shadow-sm p-2 w-100" />
@@ -233,6 +284,47 @@
 		</div>
 	{/key}
 
+	<div class="mt-3">
+		<!-- list group -->
+		<div class="list-group">
+			<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
+				<i class="fas fa-sim-card"></i>
+				SIM Cards
+			</a>
+			<div class="list-group-item">
+				<div class="row justify-content-center">
+					{#await getDistinctSimProviders() then value}
+						{#each value as obj}
+							<a class="col-auto mx-lg-3 btn" href="compare?{lib.qstringify(obj.filters)}">
+								<img src={obj.img} alt="" />
+							</a>
+						{/each}
+					{/await}
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- broadband models -->
+	<div class="mt-3">
+		<!-- list group -->
+		<div class="list-group">
+			<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
+				<i class="fa-duotone fa-router"></i>
+				Broadband Models
+			</a>
+			<div class="list-group-item">
+				<div class="row justify-content-center">
+					{#await getDistinctBroadbandModels() then value}
+						{#each value as img}
+							<button class="col-auto mx-lg-3 btn">
+								<img src={img} alt="" />
+							</button>
+						{/each}
+					{/await}
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="row mt-3">
 		<!-- color selector -->
 		<div class="col">
@@ -328,10 +420,6 @@
 		<!-- End product block -->
 	</div>
 </div>
-
-<footer class="bg-dark text-white text-center p-3">
-	<p>Footer content here</p>
-</footer>
 
 <style>
 	.carousel-inner img {

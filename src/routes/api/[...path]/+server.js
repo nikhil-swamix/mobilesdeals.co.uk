@@ -11,7 +11,14 @@ export async function GET({ url, params, setHeaders }) {
 	// console.log(url);
 	// return 10 docs from the MasterCatalog
 	if (params.path == 'find') {
-		let docs = await MasterCatalog.find(lib.qparse(url)).limit(10);
+		let findOpts = lib.qparse(url);
+		let limit = findOpts.limit || 100;
+		delete findOpts.limit;
+		console.log(findOpts, limit);
+		let docs = await MasterCatalog.find(findOpts).limit(limit);
+		setHeaders({
+			'Cache-Control': 'public,max-age=60'
+		});
 		return json(docs);
 	}
 	// add distinct path with this pattern /distinct/{key}?filter_conditions
@@ -25,7 +32,7 @@ export async function GET({ url, params, setHeaders }) {
 		console.log('time taken: ', new Date() - t);
 		// cache 1 hr
 		setHeaders({
-			'Cache-Control': 'public,max-age=3600,revalidate=1'
+			'Cache-Control': 'public,max-age=3600'
 		});
 		return json(docs);
 	}
