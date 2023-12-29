@@ -73,7 +73,7 @@
 	*/
 	import { onMount } from 'svelte';
 	import * as lib from '$lib';
-	import { getCommonNames, getDistinctBrands, getDistinctTelcos, colormap } from '$lib/helpers';
+	import { getCommonNames, getDistinctBrands, getDistinctTelcos, colormap, getDistinctSimProviders } from '$lib/helpers';
 	export let data;
 
 	let commonNames = [];
@@ -90,16 +90,7 @@
 	async function getDistinctSizes() {
 		return await lib.getjson('api/distinct/Telcos:storage_size?' + lib.qstringify(selections));
 	}
-	async function getDistinctSimProviders() {
-		let providers = await lib.getjson('api/distinct/Telcos:network?Telcos:device_product_json.product_type=SIM%20Card' + lib.qstringify(selections));
-		let imgs = await Promise.all(
-			providers.map(async (element) => {
-				let resp = await lib.getjson(`api/find?Telcos:device_product_json.product_type=SIM%20Card&Telcos:network=${element}&limit=1`);
-				return { img: resp[0].merchant_thumb_url, filters: { 'Telcos:network': element, 'Telcos:device_product_json.product_type': 'SIM Card' } };
-			})
-		);
-		return imgs;
-	}
+
 	async function getDistinctBroadbandModels(ptype = 'Mobile Wi-Fi') {
 		let items = await lib.getjson('api/distinct/common_name?Telcos:device_product_json.product_type=Mobile Wi-Fi' + lib.qstringify(selections));
 		let imgs = await Promise.all(
@@ -321,79 +312,6 @@
 							</button>
 						{/each}
 					{/await}
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row mt-3">
-		<!-- color selector -->
-		<div class="col">
-			<div class="list-group">
-				<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
-					<i class="fas fa-paint-brush"></i>
-					SELECT COLOR
-				</a>
-				<div class="list-group-item">
-					<div class="row justify-content-center py-2 g-1">
-						{#key [selections['Telcos:network'], selections.brand_name]}
-							{#if selections.colour}
-								<!-- show single -->
-								<button class="col-lg-auto col-auto btn mx-1 px-1 btn shadow-sm btn-dark bg-gradient" on:click={() => (selections.colour = selections.colour)}>
-									<!-- fa -->
-									<i class="fas fa-circle fa-lg" style="color: {colormap[selections.colour]};" />
-									{selections.colour}
-								</button>
-							{:else}
-								<!-- else content here -->
-								{#await getDistinctColours() then value}
-									{#each value as colour}
-										<button class="col-lg-auto col-auto btn mx-1 px-1 btn shadow-sm btn-dark bg-gradient" on:click={() => (selections.colour = colour)}>
-											<!-- fa -->
-											<i class="fas fa-circle fa-lg" style="color: {colormap[colour]};" />
-											{colour}
-										</button>
-									{/each}
-								{/await}
-							{/if}
-						{/key}
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- size delector -->
-		<div class="col">
-			<div class="list-group">
-				<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
-					<i class="fa-duotone fa-boxes-packing"></i>
-					SELECT SIZE
-				</a>
-				<div class="list-group-item">
-					<div class="row justify-content-center py-2 g-1">
-						{#key [selections['Telcos:network'], selections.brand_name]}
-							{#if selections['Telcos:storage_size']}
-								<!-- show single -->
-								<button
-									class="col-lg-auto col-auto btn mx-1 px-1 btn shadow-sm btn-dark bg-gradient"
-									on:click={() => (selections['Telcos:storage_size'] = selections['Telcos:storage_size'])}
-								>
-									<!-- fa -->
-
-									{selections['Telcos:storage_size']}
-								</button>
-							{:else}
-								<!-- else content here -->
-								{#await getDistinctSizes() then value}
-									{#each value as size}
-										<button class="col-lg-auto col-auto btn mx-1 px-1 btn shadow-sm btn-dark bg-gradient" on:click={() => (selections['Telcos:storage_size'] = size)}>
-											<!-- fa -->
-
-											{size}
-										</button>
-									{/each}
-								{/await}
-							{/if}
-						{/key}
-					</div>
 				</div>
 			</div>
 		</div>

@@ -2,6 +2,10 @@ import { connectDB } from '$lib/db';
 import * as lib from '$lib';
 import { mongoose } from 'mongoose';
 import { json } from '@sveltejs/kit';
+// npm i node-cache
+import NodeCache from 'node-cache';
+
+let cache = new NodeCache({ stdTTL: 3600, checkperiod: 3600 });
 connectDB();
 
 // create empty schema "MasterCatalog" with exact name
@@ -9,12 +13,11 @@ const MasterCatalog = mongoose.models.MasterCatalog || mongoose.model('MasterCat
 
 export async function GET({ url, params, setHeaders }) {
 	// console.log(url);
-	// return 10 docs from the MasterCatalog
 	if (params.path == 'find') {
 		let findOpts = lib.qparse(url);
 		let limit = findOpts.limit || 100;
 		delete findOpts.limit;
-		console.log(findOpts, limit);
+		// console.log(findOpts, limit);
 		let docs = await MasterCatalog.find(findOpts).limit(limit);
 		setHeaders({
 			'Cache-Control': 'public,max-age=60'
@@ -23,17 +26,24 @@ export async function GET({ url, params, setHeaders }) {
 	}
 	// add distinct path with this pattern /distinct/{key}?filter_conditions
 	if (params.path.startsWith('distinct')) {
+		// cache url
+		let hash = url.pathname + url.search;
 		let distinctor = params.path.split('/')[1];
-
 		let t = new Date();
-		let docs = await MasterCatalog.distinct(distinctor, lib.qparse(url));
-		// let docs = ['await MasterCatalog.distinct(distinctor, filter)'];
-
-		console.log('time taken: ', new Date() - t);
-		// cache 1 hr
+		let docs = cache.get(hash);
+		console.log(hash, docs?.length);
 		setHeaders({
 			'Cache-Control': 'public,max-age=3600'
 		});
+		if (docs) {
+			// console.log('kashi memory',docs.length);
+			return json(docs);
+		} else {
+			docs = await MasterCatalog.distinct(distinctor, lib.qparse(url));
+			cache.set(hash, docs);
+			console.log('time taken: ', new Date() - t);
+		}
+
 		return json(docs);
 	}
 }

@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 	<div class="container">
-		<a class="navbar-brand" href="#">Mobiles Deals UK - Ultimate Deals </a>
+		<a class="navbar-brand" href="/">Mobiles Deals UK - Ultimate Deals </a>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -23,5 +23,5 @@
 <slot />
 
 <footer class="bg-dark text-white text-center p-3">
-	<p>Footer content here</p>
+	<p>MobilesDeals.co.uk All rights reserved &copy; 2023</p>
 </footer>

@@ -34,8 +34,11 @@
 		"dotenv": "^16.3.1",
 		"mongeasy": "^1.0.1",
 		"mongoose": "^8.0.3",
+		"mongoose-cachebox": "^1.2.0",
+		"node-cache": "^5.1.2",
 		"qs": "^6.11.2",
 		"query-string": "^8.1.0",
+		"recachegoose": "^10.0.1",
 		"svelte-preprocess": "^5.1.3"
 	}
 }

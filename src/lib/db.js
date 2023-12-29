@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { MONGO_URI } from '$env/static/private';
 // import Models from './models.js';
-console.log(MONGO_URI);
+// console.log(MONGO_URI);
 
 export const connectDB = async () => {
 	try {

@@ -1,12 +1,12 @@
 import * as lib from '.';
-export async function getCommonNames(philters) {
-	return await lib.getjson('api/distinct/common_name?' + lib.qstringify(philters));
+export async function getCommonNames(philters, fetch = window.fetch) {
+	return await lib.getjson('api/distinct/common_name', lib.qstringify(philters), fetch);
 }
 // get commonname variety
 export async function getCommonNameVariety(common_name, filters) {
 	filters.common_name = common_name;
-	let sizes = await lib.getjson('api/distinct/Telcos:storage_size',filters);
-	let colours = await lib.getjson('api/distinct/colour',filters);
+	let sizes = await lib.getjson('api/distinct/Telcos:storage_size', filters);
+	let colours = await lib.getjson('api/distinct/colour', filters);
 	let sample = (await lib.getjson('api/find', { ...filters, limit: 1 }))[0];
 	let img = sample.merchant_image_url;
 	let desc = sample.description;
@@ -51,6 +51,11 @@ export async function getDistinctBroadbandModels(ptype = 'Mobile Wi-Fi') {
 		})
 	);
 	return imgs;
+}
+
+// getDeals
+export async function getDeals(filters) {
+	return await lib.getjson('api/find?' + lib.qstringify(filters));
 }
 
 export let colormap = {
