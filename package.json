@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"rdeploy":"ssh mobilesdeals \"bash mobilesdeals.co.uk/deploy.sh\"",
+		"rdeploy":"ssh mobilesdeals \"cd mobilesdeals.co.uk; bash ./deploy.sh\"",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
