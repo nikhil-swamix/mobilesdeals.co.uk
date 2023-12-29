@@ -1,4 +1,5 @@
 git pull
 # source pm2
-source ~/.bashrc
+
+$HOME/.nvm/nvm.sh
 pm2 restart all
