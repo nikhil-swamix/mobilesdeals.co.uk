@@ -138,7 +138,7 @@
 										{deal['Telcos:connectivity'].replace(/ /g, '')}
 									</button>
 									<button type="button" class="btn col-lg-6 btn-outline-dark">
-										{deal['Telcos:tariff'].split(' ').slice(1).join(' ')}
+										{deal['Telcos:tariff']}
 									</button>
 								</div>
 							</div>
