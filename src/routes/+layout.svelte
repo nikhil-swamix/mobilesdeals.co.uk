@@ -10,7 +10,7 @@
 					<a class="nav-link" href="#"><i class="fas fa-mobile-alt"></i> Mobile Phones <span class="sr-only">(current)</span></a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="#"><i class="fas fa-sim-card"></i> SIM Only</a>
+					<a class="nav-link" href="#sim"><i class="fas fa-sim-card"></i> SIM Only</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="#"><i class="fas fa-question-circle"></i> Help</a>

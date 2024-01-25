@@ -1,6 +1,7 @@
 import qs from 'query-string';
-export { goto, afterNavigate, pushState ,onNavigate,beforeNavigate,replaceState} from '$app/navigation';
-export { page } from '$app/stores';
+export { goto, afterNavigate, pushState ,onNavigate,beforeNavigate} from '$app/navigation';
+export { page, } from '$app/stores';
+export {browser} from '$app/environment';
 
 export const qparse = (url) => {
 	let q = url?.search;
@@ -14,11 +15,7 @@ export const qstringify = (obj) => {
 };
 
 // getjson
-export const getjson = async (url, filters, fetch ) => {
-	// console.log(url, filters);
-	if (!fetch) {
-		fetch = window.fetch;
-	}
+export const getjson = async (url, filters ) => {
 	if (filters) {
 		url = url + '?' + qstringify(filters);
 	}

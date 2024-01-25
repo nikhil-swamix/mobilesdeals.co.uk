@@ -1,10 +1,11 @@
 <script>
 	export let cname, shadowFilters;
 	import * as helpers from '$lib/helpers';
+	let meadowFilters = { ...shadowFilters };
 	// $: console.log(cname, filters,shadowFilters);
 </script>
 
-{#await helpers.getCommonNameVariety(cname, { ...shadowFilters }) then details}
+{#await helpers.getCommonNameVariety(cname, {...shadowFilters}) then details}
 	<div class="col-xxl-3 col-lg-4 col-12 mt-3 mt-xxl-2 p-xxl-2 p-1">
 		<button class="card h-100 border-black btn text-start shadow-sm" on:click={() => (shadowFilters.common_name = cname)}>
 			<div class="row g-0 h-100 mx-0">

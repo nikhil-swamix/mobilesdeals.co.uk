@@ -1,76 +1,4 @@
 <script>
-	/* 
-	{
-        "_id": "6574166d981a5e3efc0c4948",
-        "product_name": "Three SIM Only on Value UNLIMITED (24 Month contract) with Unlimited 5G data. £29 a month.",
-        "common_name": "SIM Card Triple SIM ",
-        "colour": null,
-        "brand_name": "SIM Card",
-        "aw_deep_link": "https://www.awin1.com/pclick.php?p=36287795856&a=123501&m=10210",
-        "merchant_name": "Three",
-        "merchant_category": "SIM Card - PAYM",
-        "merchant_image_url": "https://media.bigupdata.co.uk/img_product_image_main_large1_reseller_product_edition0000006641.png?h=400&w=400&auto=enhance&auto=format&bg=FFFFFF&trim=color&trimcolor=FFFFFF&trim=auto&trimtol=2",
-        "merchant_thumb_url": "https://media.bigupdata.co.uk/img_product_image_main_large1_reseller_product_edition0000006641.png?h=150&w=150&auto=enhance&auto=format&bg=FFFFFF&trim=color&trimcolor=FFFFFF&trim=auto&trimtol=2",
-        "description": "A Triple SIM is a hybrid Standard SIM card with a snap-out Micro SIM and Nano SIM embedded in it. They work just the same, but are compatible with three times as many devices.",
-        "Telcos:device_full_name": "SIM Card Triple SIM",
-        "Telcos:network": "Three",
-        "Telcos:gift": null,
-        "Telcos:device_product_json": {
-            "product_type": "SIM Card",
-            "product_id": "314",
-            "product_brand": "SIM Card",
-            "product_brand_id": "49",
-            "product_name": "Triple SIM",
-            "product_type_id": "2"
-        },
-        "Telcos:device_product_version_json": {
-            "product_version_name": "",
-            "product_version_id": "663"
-        },
-        "Telcos:initial_cost": 0,
-        "Telcos:month_cost": 29,
-        "Telcos:tariff": "Value SIM Only UNLIMITED",
-        "Telcos:inc_minutes": null,
-        "Telcos:inc_texts": null,
-        "Telcos:connectivity": "5G",
-        "Telcos:inc_data": "Unlimited",
-        "Telcos:storage_size": "0",
-        "Telcos:deal_retailer_json": {
-            "logo_url": "https://media.bigupdata.co.uk/img_company_logo_large1_company0000000036.png",
-            "company_id": "36",
-            "terms_url": "http://www.three.co.uk/terms-conditions",
-            "name": "Three"
-        },
-        "Telcos:deal_type_json": {
-            "deal_type_name": "Consumer",
-            "deal_type_id": "0"
-        },
-        "Telcos:deal_cost_json": {
-            "tco_inc_vat": "696.00",
-            "monthly_device_final_term_exc_vat": "",
-            "upfront_inc_vat": "0.00",
-            "monthly_total_previous_inc_vat": "",
-            "tco_exc_vat": "580.00",
-            "ecpm_inc_vat": "29.00",
-            "monthly_device_final_term_months": "",
-            "ecpm_exc_vat": "24.17",
-            "upfront_exc_vat": "0.00",
-            "monthly_device_term_months": "",
-            "monthly_device_final_term_inc_vat": "",
-            "monthly_contract_term_months": "24",
-            "monthly_total_inc_vat": "29.00",
-            "monthly_device_inc_vat": "",
-            "upfront_previous_inc_vat": "",
-            "monthly_contract_inc_vat": "0.00",
-            "upfront_previous_exc_vat": "",
-            "monthly_contract_exc_vat": "",
-            "monthly_device_exc_vat": "",
-            "monthly_total_exc_vat": "24.17",
-            "monthly_total_previous_exc_vat": ""
-        },
-        "data_feed_id": 18901
-    },
-	*/
 	import { onMount } from 'svelte';
 	import * as lib from '$lib';
 	import { getCommonNames, getDistinctBrands, getDistinctTelcos, colormap, getDistinctSimProviders } from '$lib/helpers';
@@ -79,8 +7,9 @@
 	let commonNames = [];
 	let filteredResults = [];
 	let searchTerm = '';
-
 	let selections = {};
+
+
 
 	async function getDistinctColours() {
 		// remove null
@@ -105,9 +34,12 @@
 	$: {
 		filterSearchResults(searchTerm);
 
-		if (selections['Telcos:network'] && selections.brand_name) {
+		if (selections.merchant_name && selections.brand_name) {
 			// filterSearchResults(searchTerm);
 			window.location.href = `compare?${lib.qstringify(selections)}`;
+		}
+		if (selections.common_name) {
+			lib.goto(`compare?${lib.qstringify(selections)}`);
 		}
 	}
 
@@ -219,23 +151,22 @@
 						class="list-group-item text-center list-group-item-action active {selections['Telcos:network'] ? 'bg-success' : 'bg-dark'} border-black bg-gradient fw-bold"
 						aria-current="true"
 					>
-						<i class="fa-duotone fa-wifi-2"></i>
-						SELECT NETWORK
+						<i class="fa-duotone fa-store-alt"></i>
+						Select Merchant
 					</a>
 					<div class="list-group-item">
 						<div class="row justify-content-center">
-							{#await getDistinctTelcos(selections) then value}
-								{#each value as telco}
-									<button
-										class="col-3 btn"
-										on:click={() => {
-											selections['Telcos:network'] = telco;
-										}}
-									>
-										<img src={telcologomap[telco]} alt="Telco" class="img-fluid rounded-4 shadow btn p-0 border-0" />
-									</button>
-								{/each}
-							{/await}
+							{#each Object.entries(data.merchants) as [name, logo]}
+								<button
+									class="col-{['Three', 'Vodafone Ltd'].includes(name) ? '2' : '2'} btn"
+									on:click={() => {
+										selections['merchant_name'] = name;
+									}}
+								>
+									<!-- {name} -->
+									<img src={logo} alt="Telco" class="img-fluid p-0 border-0" />
+								</button>
+							{/each}
 						</div>
 					</div>
 				</div>
@@ -277,7 +208,7 @@
 
 	<div class="mt-3">
 		<!-- list group -->
-		<div class="list-group">
+		<div class="list-group" id="sim">
 			<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
 				<i class="fas fa-sim-card"></i>
 				SIM Cards

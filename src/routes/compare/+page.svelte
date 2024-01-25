@@ -1,33 +1,81 @@
 <script>
 	export let data;
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import * as lib from '$lib';
 	import * as helpers from '$lib/helpers';
 	import ProductModelCard from './ProductModelCard.svelte';
 	import { browser } from '$app/environment';
+	import DataTable from 'datatables.net-bs5';
+	// import 'datatables.net-buttons-bs5';
+	// import 'datatables.net-responsive-bs5';
+	import { goto } from '$app/navigation';
+
+	
+	let timer;
 	let page = lib.page;
-	let filters = lib.qparse($page.url);
-	let shadowFilters = filters;
-	$: {
-		// shadowFilters = { ...shadowFilters };
-		if (browser) lib.goto('?' + lib.qstringify(shadowFilters));
-	}
+	let shadowFilters = lib.qparse($page.url);
+
+	setInterval(() => {
+		if (JSON.stringify(shadowFilters) != JSON.stringify(lib.qparse($page.url))) {
+			// shadowFilters = lib.qparse($page.url);
+			goto(`/compare?${lib.qstringify(shadowFilters)}`);
+			// console.log(lib.qparse($page.url),shadowFilters);
+		}
+	}, 200);
 	onMount(() => {
-		console.log($page.state);
-	});
-	lib.afterNavigate(() => {
-		// if (browser) lib.pushState('?' + lib.qstringify(shadowFilters));
-		console.log('trig url params updates');
-		// if (lib.qparse($page.url) !== shadowFilters) {
-		// }
-		// lib.goto('?' + lib.qstringify(shadowFilters));
-		// window.location.href = "?" + lib.qstringify(shadowFilters);
-		console.log('Navigation Event', shadowFilters);
+		let table = new DataTable('#myTable', {
+			autoWidth: true
+		});
+		console.log(data);
 	});
 </script>
 
-<div class="row p-lg-4 mx-lg-5 mx-0">
-	<div class="col-12 row mt-2 mt-lg-2" id="filters">
+<svelte:head>
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+</svelte:head>
+<div class="row p-lg-2 mx-lg-5 mx-0">
+	{#if !shadowFilters['merchant_name']}
+		<p class="lead text-danger m-0">Please Select Merchant</p>
+		<div class="btn-group" role="group" aria-label="Button group name">
+			{#await lib.getjson('/api/distinct/merchant_name', shadowFilters) then data}
+				{#each data as m}
+					<button type="button" class="btn btn-outline-primary {shadowFilters['merchant_name'] == m ? 'active' : ''}" on:click={() => (shadowFilters['merchant_name'] = m)}>
+						{m}
+					</button>
+				{/each}
+			{/await}
+		</div>
+	{:else}
+		<div class="btn-group btn-group" role="group" aria-label="">
+			<button type="button" class="btn btn-dark "> Merchant </button>
+
+			<button type="button" class="btn btn-primary" autocomplete="off">
+				{shadowFilters['merchant_name']}
+			</button>
+		</div>
+	{/if}
+	{#if !shadowFilters['Telcos:network']}
+		<p class="lead text-danger m-0 mt-3">Please Select Network</p>
+		<div class="btn-group" role="group" aria-label="Button group name">
+			{#await lib.getjson('/api/distinct/Telcos:network', shadowFilters) then data}
+				{#each data as m}
+					<button type="button" class="btn btn-outline-primary {shadowFilters['Telcos:network'] == m ? 'active' : ''}" on:click={() => (shadowFilters['Telcos:network'] = m)}>
+						{m}
+					</button>
+				{/each}
+			{/await}
+		</div>
+	{:else}
+		<div class="btn-group btn-group mt-3" role="group" aria-label="">
+			<button type="button" class="btn btn-dark "> Merchant </button>
+
+			<button type="button" class="btn btn-primary" autocomplete="off">
+				{shadowFilters['Telcos:network']}
+			</button>
+		</div>
+	{/if}
+	<!-- ------------------------------ -->
+	<div class="col-12 row mt-2 mt-lg-2 px-4" id="filters">
 		{#if shadowFilters && Object.keys(shadowFilters).length > 0}
 			<div class="col-auto py-1 d-flex align-items-center btn btn-dark me-2">
 				<!-- fa tick -->
@@ -39,8 +87,15 @@
 				<div class="btn-group col-auto btn-group-sm px-0 me-lg-2 shadow">
 					<button type="button" class="btn py-0 px-1 btn-primary">{helpers.attrTranslate[key]}</button>
 					<button type="button" class="btn py-0 px-1 btn-outline-dark">{value}</button>
-					<!-- add fa x -->
-					<button type="button" class="btn py-0 px-1 btn-danger" on:click={() => delete shadowFilters[key] && (shadowFilters = shadowFilters)}><i class="fas fa-times" /></button>
+					<button
+						type="button"
+						class="btn py-0 px-1 btn-danger"
+						on:click={async () => {
+							delete shadowFilters[key];
+							await goto(`/compare?${lib.qstringify(shadowFilters)}`);
+							window.location.reload();
+						}}><i class="fas fa-times" /></button
+					>
 				</div>
 			{/each}
 			{#if !shadowFilters?.common_name}
@@ -58,101 +113,94 @@
 		{/if}
 	</div>
 	<div class="row col-12 ps-3 ps-lg-0 mx-auto my-lg-3">
-		{#key $page.url}
-			<!-- <ProductModelCard cname={shadowFilters.common_name} bind:shadowFilters /> -->
-
-			{#each data.common_names as cname}
-				<ProductModelCard {cname} filters={{ ...filters }} bind:shadowFilters />
-			{/each}
-		{/key}
+		{#each data.common_names as cname}
+			<ProductModelCard {cname} bind:shadowFilters />
+		{/each}
 	</div>
 
-	{#if Object.keys(shadowFilters).length == 5}
+	{#if data.deals}
 		<h2 class="display-4 fw-bold">Available Deals</h2>
 
-		<div class="row col-12 p-0 ps-lg-0 mx-lg-auto mx-0 px-0">
-			{#await helpers.getDeals({ ...shadowFilters }) then value}
-				{#each value as deal}
-					<!-- DISPLAY INSTRUCTIONS ; card horizontal, col1 = [Telcos:deal_retailer_json.[name,logourl]] col2 = [price] col2 [monthly, total cost] -->
-					<div class=" col-lg-12 col-12 px-0 py-2 border-top">
-						<div class="row mx-0 d-flex justify-content-start align-items-center">
-							<div class="col-lg-1 col-3 d-flex align-items-center p-1">
-								<img src={deal['Telcos:deal_retailer_json']['logo_url']} class="card-img img-fluid" alt="..." />
+		<table class="table fixed" id="myTable">
+			<thead>
+				<tr>
+					<th class="m-0 p-0 h5">Retailer</th>
+					<th class="m-0 p-0 h5"> Monthly </th>
+					<th class="m-0 p-0 h5">Upfront</th>
+					<th class="m-0 p-0 h5">Total</th>
+					<th class="m-0 p-0 h5">Contract Duration</th>
+					<th class="m-0 p-0 h5">Traiff</th>
+					<th class="m-0 p-0 h5">Data</th>
+					<th class="m-0 p-0 h5">View Deal</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each data.deals as deal}
+					<tr class="">
+						<td class="col">
+							<img src={deal['Telcos:deal_retailer_json']['logo_url']} class="img-fluid" alt="..." />
+						</td>
+						<td class="">
+							<button type="button" class="btn btn-outline-dark btn-sm fw-bold">
+								<i class="fa-duotone fa-pound-sign"></i>
+								{deal['Telcos:deal_cost_json']['monthly_total_inc_vat']}
+							</button>
+						</td>
+						<td class="px-0">
+							<i class="fa-duotone fa-pound-sign"></i>
+							{deal['Telcos:initial_cost']}
+						</td>
+						<td class="px-0">
+							<button type="button" class="btn btn-outline-dark btn-sm fw-bold">
+								<i class="fa-duotone fa-pound-sign"></i>
+								{deal['Telcos:deal_cost_json']['tco_inc_vat']}
+							</button>
+						</td>
+						<td class="px-0">
+							<div class="btn-group btn-group-sm" role="group">
+								<button type="button" class="btn btn-dark fw-normal px-0" title="Contract Duration">
+									<i class="fa-duotone fa-fw fa-timer"></i>
+								</button>
+								<button type="button" class="btn btn-outline-dark">
+									{deal['Telcos:deal_cost_json']['monthly_contract_term_months']} Mo
+								</button>
 							</div>
-							<!-- monthly -->
-							<div class=" col-auto col-lg-auto px-0 pt-lg-0">
-								<div class="btn-group" role="group">
-									<button type="button" class="btn btn-dark px-2">
-										<i class="fa-duotone fa-pound-sign" />
-										Monthly
-									</button>
-									<button type="button" class="btn btn-outline-dark fw-bold">{deal['Telcos:deal_cost_json']['monthly_total_inc_vat']} </button>
-								</div>
+						</td>
+						<td class="px-0">
+							<div class="btn-group btn-group-sm" role="group">
+								<button type="button" class="btn btn-dark fw-normal" title="Talktime minutes">
+									<i class="fa-duotone fa-fw fa-phone-arrow-down"></i>
+								</button>
+								<button type="button" class="btn btn-outline-dark">
+									{deal['Telcos:inc_minutes'] == 'Unlimited' ? 'Unltd.' : `${deal['Telcos:inc_minutes']}`}
+								</button>
+								<button type="button" class="btn btn-dark fw-normal">
+									<i class="fa-duotone fa-fw fa-sms"></i>
+								</button>
+								<button type="button" class="btn btn-outline-dark">
+									{deal['Telcos:inc_texts']}
+								</button>
 							</div>
-							<div class=" col-auto col-lg-auto px-0 ps-lg-2 pt-lg-0">
-								<div class="btn-group mw-lg-12em row mx-0" role="group">
-									<button type="button" class="btn btn-dark fw-normal col-auto">
-										<i class="fa-duotone fa-pound-sign px-0" />
-										Upfront
-									</button>
-									<button type="button" class="btn btn-outline-dark text-center fw-bold col-3 p-0">{Math.round(deal['Telcos:initial_cost'])} </button>
-								</div>
+						</td>
+						<td class="px-0">
+							<div class="btn-group btn-group-sm" role="group">
+								<button type="button" class="btn btn-dark fw-normal">
+									{deal['Telcos:connectivity'].replace(/ /g, '')}
+								</button>
+								<button type="button" class="btn btn-outline-dark">
+									{deal['Telcos:tariff']}
+								</button>
 							</div>
-							<div class=" col-3 col-lg-auto px-1 pt-2 pt-lg-0">
-								<div class="btn-group btn-group-sm" role="group">
-									<button type="button" class="btn btn-dark fw-normal px-0">
-										Total
-										<!-- <i class="fa-duotone fa-fw fa-pound-sign" /> -->
-									</button>
-									<button type="button" class="btn btn-outline-dark text-center">{deal['Telcos:deal_cost_json']['tco_inc_vat']} </button>
-								</div>
-							</div>
-							<div class=" col-3 col-lg-auto px-1 pt-2 pt-lg-0">
-								<div class="btn-group btn-group-sm" role="group">
-									<button type="button" class="btn btn-dark fw-normal px-0" title="contract Duration">
-										<i class="fa-duotone fa-fw fa-timer" />
-									</button>
-									<button type="button" class="btn btn-outline-dark">{deal['Telcos:deal_cost_json']['monthly_contract_term_months']} Months</button>
-								</div>
-							</div>
-							<div class=" col-6 col-lg-auto px-1 pt-2 pt-lg-0">
-								<div class="btn-group btn-group-sm" role="group">
-									<button type="button" class="btn btn-dark fw-normal" title="Talktime minutes">
-										<i class="fa-duotone fa-fw fa-phone-arrow-down" />
-									</button>
-									<button type="button" class="btn btn-outline-dark text-success">{deal['Telcos:inc_minutes']}</button>
-									<button type="button" class="btn btn-dark fw-normal">
-										<i class="fa-duotone fa-fw fa-sms" />
-									</button>
-									<button type="button" class="btn btn-outline-dark text-success">
-										{deal['Telcos:inc_texts']}
-									</button>
-								</div>
-							</div>
-							<div class=" col-6 col-lg-2 px-1 pt-2 pt-lg-0">
-								<div class="row mx-0 btn-group btn-group-sm col-12" role="group">
-									<button type="button" class="btn col-lg-2 btn-dark fw-normal" title="Data">
-										<i class="fa-duotone fa-arrow-up-arrow-down" />
-									</button>
-									<button type="button" class="btn col-lg-2 bg-opacity-25 bg-dark fw-normal">
-										{deal['Telcos:connectivity'].replace(/ /g, '')}
-									</button>
-									<button type="button" class="btn col-lg-6 btn-outline-dark">
-										{deal['Telcos:tariff']}
-									</button>
-								</div>
-							</div>
-							<div class=" col-6 col-lg-2 px-1 pt-2 pt-lg-0">
-								<a class="btn btn-lg btn-success" href="deal?_id={deal._id}" target="_blank">
-									View Deal
-									<i class="fa-duotone fa-cart-shopping-fast" />
-								</a>
-							</div>
-						</div>
-					</div>
+						</td>
+						<td class="px-0">
+							<a class="btn btn-success" href="deal?_id={deal._id}" target="_blank">
+								View Deal <i class="fa-duotone fa-cart-shopping-fast"></i>
+							</a>
+						</td>
+					</tr>
 				{/each}
-			{/await}
-		</div>
+			</tbody>
+		</table>
 	{/if}
 </div>
 
@@ -255,5 +303,8 @@ deal schema
 		max-height: 4em;
 		width: auto;
 		margin: auto;
+	}
+	table img {
+		max-height: 3em;
 	}
 </style>

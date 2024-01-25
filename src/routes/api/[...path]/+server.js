@@ -31,7 +31,7 @@ export async function GET({ url, params, setHeaders }) {
 		let distinctor = params.path.split('/')[1];
 		let t = new Date();
 		let docs = cache.get(hash);
-		console.log(hash, docs?.length);
+		// console.log(hash, docs?.length);
 		setHeaders({
 			'Cache-Control': 'public,max-age=3600'
 		});

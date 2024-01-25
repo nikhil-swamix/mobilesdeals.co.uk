@@ -32,7 +32,7 @@ export async function getDistinctColours() {
 export async function getDistinctSizes() {
 	return await lib.getjson('api/distinct/Telcos:storage_size?' + lib.qstringify(selections));
 }
-export async function getDistinctSimProviders() {
+export async function getDistinctSimProviders(selections) {
 	let providers = await lib.getjson('api/distinct/Telcos:network?Telcos:device_product_json.product_type=SIM%20Card' + lib.qstringify(selections));
 	let imgs = await Promise.all(
 		providers.map(async (element) => {
@@ -54,7 +54,7 @@ export async function getDistinctBroadbandModels(ptype = 'Mobile Wi-Fi') {
 }
 
 // getDeals
-export async function getDeals(filters) {
+export async function getDeals(filters, fetch = window.fetch) {
 	return await lib.getjson('api/find?' + lib.qstringify(filters));
 }
 
@@ -79,5 +79,6 @@ export let attrTranslate = {
 	'Telcos:storage_size': 'Storage',
 	colour: 'Colour',
 	common_name: 'Model',
-	brand_name: 'Brand'
+	brand_name: 'Brand',
+	merchant_name: 'Merchant'
 };
