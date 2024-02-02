@@ -141,13 +141,13 @@
 					{/if}
 				{/each}
 				{#if !shadowFilters?.common_name}
-					<button type="button" class="btn btn-warning btn-sm col-auto me-2">Please select a Model</button>
+					<button type="button" class="btn btn-warning btn-sm col-auto me-2 blink">Please select a Model</button>
 				{/if}
 				{#if !shadowFilters?.colour}
-					<button type="button" class="btn btn-warning btn-sm col-auto me-2">Please select a Colour</button>
+					<button type="button" class="btn btn-warning btn-sm col-auto me-2 blink">Please select a Colour</button>
 				{/if}
 				{#if !shadowFilters['Telcos:storage_size']}
-					<button type="button" class="btn btn-warning btn-sm col-auto me-2">Please select a Storage</button>
+					<button type="button" class="btn btn-warning btn-sm col-auto me-2 blink">Please select a Storage</button>
 				{/if}
 				<!-- <button class="btn btn-danger btn-sm" on:click={() => (filters = {})}>Clear</button> -->
 			{:else}

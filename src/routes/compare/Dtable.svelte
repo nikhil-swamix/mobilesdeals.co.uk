@@ -9,6 +9,7 @@
 		table = new DataTable('#myTable', {
 			// autoWidth: true,
             order: [[1, 'asc']],
+            pageLength: 25,
 		});
 	});
 	onDestroy(() => {
