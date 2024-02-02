@@ -1,7 +1,9 @@
 import qs from 'query-string';
-export { goto, afterNavigate, pushState ,onNavigate,beforeNavigate} from '$app/navigation';
-export { page, } from '$app/stores';
-export {browser} from '$app/environment';
+export { goto, afterNavigate, pushState, onNavigate, beforeNavigate, replaceState } from '$app/navigation';
+export { page } from '$app/stores';
+export { browser } from '$app/environment';
+
+import axios from 'axios';
 
 export const qparse = (url) => {
 	let q = url?.search;
@@ -15,11 +17,12 @@ export const qstringify = (obj) => {
 };
 
 // getjson
-export const getjson = async (url, filters ) => {
+export const getjson = async (url, filters, _fetch = fetch) => {
+
 	if (filters) {
 		url = url + '?' + qstringify(filters);
 	}
-	let res = await fetch(url);
-	let json = await res.json();
+	let json = await _fetch(url).then((res) => res.json());
+	// console.log(json);
 	return json;
 };

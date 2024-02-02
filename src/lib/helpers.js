@@ -80,5 +80,6 @@ export let attrTranslate = {
 	colour: 'Colour',
 	common_name: 'Model',
 	brand_name: 'Brand',
-	merchant_name: 'Merchant'
+	merchant_name: 'Merchant',
+	'Telcos:device_product_json.product_type': 'Product Type'
 };

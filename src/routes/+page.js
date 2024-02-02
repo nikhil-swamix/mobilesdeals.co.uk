@@ -1,6 +1,8 @@
 import * as lib from '$lib';
 import { browser } from '$app/environment';
 let response = [];
+
+
 export async function load({ fetch, params, session }) {
 	// Add your logic to fetch data here
 	if (browser) {

@@ -13,3 +13,4 @@ vite.config.ts.timestamp-*
 .prettier*
 src/pre
 dump
+chroma.db
