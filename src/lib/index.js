@@ -3,7 +3,6 @@ export { goto, afterNavigate, pushState, onNavigate, beforeNavigate, replaceStat
 export { page } from '$app/stores';
 export { browser } from '$app/environment';
 
-import axios from 'axios';
 
 export const qparse = (url) => {
 	let q = url?.search;
