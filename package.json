@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"rdeploy": "pnpm run patch-nginx && ssh mobilesdeals \"cd mobilesdeals.co.uk; bash ./deploy.sh && sudo service nginx restart\"  ",
+		"rdeploy": "ssh mobilesdeals \"cd mobilesdeals.co.uk; bash ./deploy.sh && sudo service nginx restart\"  ",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
