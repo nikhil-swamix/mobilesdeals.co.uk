@@ -17,6 +17,7 @@
 		if (JSON.stringify(shadowFilters) != JSON.stringify(oldShadow)) {
 			oldShadow = { ...shadowFilters };
 		}
+		shadowFilters = purify(shadowFilters);
 		if (JSON.stringify(shadowFilters) != JSON.stringify(lib.qparse($page.url))) {
 			lib.replaceState(`/compare?${lib.qstringify(shadowFilters)}`, $page.state);
 			console.log(lib.qparse($page.url), shadowFilters);

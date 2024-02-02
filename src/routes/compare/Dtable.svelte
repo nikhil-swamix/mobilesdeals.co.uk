@@ -7,7 +7,8 @@
 	let table;
 	onMount(async () => {
 		table = new DataTable('#myTable', {
-			autoWidth: true
+			// autoWidth: true,
+            order: [[1, 'asc']],
 		});
 	});
 	onDestroy(() => {
