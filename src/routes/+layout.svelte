@@ -1,12 +1,13 @@
 <script>
 	import DistinctDropdown from './DistinctDropdown.svelte';
+
 </script>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 	<div class="container">
 		<a class="navbar-brand d-flex align-items-center" href="/">
-			<img src="/favicon.png" alt="" height="36" class="rounded me-lg-2">
-			<span class="lead">Cheapest Deals. Guaranteed.</span> 
+			<img src="/favicon.png" alt="" height="36" class="rounded me-lg-2" />
+			<span class="lead">Cheapest Deals. Guaranteed.</span>
 		</a>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>

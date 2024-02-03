@@ -142,7 +142,7 @@ if __name__ == "__main__":
     # index_code()
     chromify()
 
-    QUERY = "why is datatables not working"
+    QUERY = "complete the shadow filters store, since clicking on navbar-DistinctDropdown its not updating the compare page"
     context = vsearch(QUERY, results=5)
     ai_resp = CLIENT.chat.completions.create(
         model=MODEL,

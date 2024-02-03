@@ -5,16 +5,12 @@ export async function getCommonNames(philters, fetch = window.fetch) {
 // get commonname variety
 export async function getCommonNameVariety(common_name, filters) {
 	filters.common_name = common_name;
-	let sizes = await lib.getjson('api/distinct/Telcos:storage_size', filters);
-	let colours = await lib.getjson('api/distinct/colour', filters);
+	// let sizes = await lib.getjson('api/distinct/Telcos:storage_size', filters);
+	// let colours = await lib.getjson('api/distinct/colour', filters);
 	let sample = (await lib.getjson('api/find', { ...filters, limit: 1 }))[0];
-	let img = sample.merchant_image_url;
-	let desc = sample.description;
-	// replace FFFFFF to transparent in pmg url
-	// exclude apple
-	if (!common_name.includes('Apple')) img = img.replace('FFFFFF', 'transparent');
-	// console.log(img);
-	return { sizes, colours, img, desc };
+	let img = sample?.merchant_image_url;
+	if (!common_name.includes('Apple')) img = img?.replace('FFFFFF', 'transparent'); // exclude apple // console.log(img);
+	return { img,desc:sample?.description };
 }
 export async function getDistinctBrands(philters) {
 	let data = await lib.getjson('api/distinct/brand_name?' + lib.qstringify(philters));

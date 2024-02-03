@@ -1,36 +1,47 @@
 <script>
-	export let data;
+	// export let data;
+	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import * as lib from '$lib';
 	import * as helpers from '$lib/helpers';
 	import ProductModelCard from './ProductModelCard.svelte';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import Dtable from './Dtable.svelte';
+	import sf from '$lib/stores/shadowFilters';
 
-	let shadowFilters = lib.qparse($page.url);
-	let oldShadow = { ...shadowFilters };
+	let shadowFilters ;
+	let oldShadow ;
 	let deals = [];
 	let table;
+	let common_names = [];
 	/* 	setInterval(() => { if (JSON.stringify(shadowFilters) != JSON.stringify(lib.qparse($page.url))) { lib.replaceState(`/compare?${lib.qstringify(shadowFilters)}`, $page.state); console.log(lib.qparse($page.url), shadowFilters); } }, 200); */
 	$: {
-		// shadowFilters = { ...shadowFilters, ...lib.qparse($page.url) };
+		// console.log($sf);
+		shadowFilters = purify({ ...lib.qparse($page.url), ...$sf,...shadowFilters });
+
+		// $sf = shadowFilters;
 		if (JSON.stringify(shadowFilters) != JSON.stringify(oldShadow)) {
 			oldShadow = { ...shadowFilters };
 		}
-		shadowFilters = purify(shadowFilters);
-		if (JSON.stringify(shadowFilters) != JSON.stringify(lib.qparse($page.url))) {
-			lib.replaceState(`/compare?${lib.qstringify(shadowFilters)}`, $page.state);
+		// shadowFilters = purify(shadowFilters);
+		if (JSON.stringify($sf) != JSON.stringify(lib.qparse($page.url))) {
+			lib.browser && lib.replaceState(`/compare?${lib.qstringify(shadowFilters)}`, $page.state);
+			shadowFilters = $sf
 			console.log(lib.qparse($page.url), shadowFilters);
 		}
-		// console.log(deals,table);
+
+		browser && lib.getjson('/api/distinct/common_name', shadowFilters).then((x) => (common_names = x));
 	}
 
-	function niggate(obj, delkeys) {
-		obj = { ...obj };
-		for (let key of delkeys) {
-			delete obj[key];
+	function niggate(obj, delkey) {
+		let robj = {};
+		for (const key in obj) {
+			if (key != delkey) {
+				robj[key] = obj[key];
+			}
 		}
-		return obj;
+		return robj;
 	}
 	function purify(obj) {
 		return Object.fromEntries(Object.entries(obj).filter(([k, v]) => v != null));
@@ -39,7 +50,7 @@
 	async function updateDeals() {
 		// deals = [];
 		// table?.destroy();
-		deals = await lib.getjson('/api/find', oldShadow);
+		deals = await lib.getjson('/api/find', shadowFilters);
 		setTimeout(() => {
 			if (table) {
 				table = undefined;
@@ -48,6 +59,9 @@
 
 		return deals;
 	}
+	onMount(async () => {
+		common_names = await lib.getjson('/api/distinct/common_name', shadowFilters);
+	});
 </script>
 
 <svelte:head>
@@ -114,6 +128,53 @@
 			{/await}
 		</div>
 
+		<!-- {#key shadowFilters.colour} -->
+		<div>
+			<div class="btn-group mt-2 w-auto" role="group" aria-label="Button group name">
+				{#await lib.getjson('/api/distinct/colour', niggate(shadowFilters, 'colour'))}
+					<!-- promise is pending -->
+				{:then colours}
+					<button type="button" class="btn btn-primary btn-sm fw-bold"> Select Colour </button>
+
+					{#each colours as colour}
+						<button
+							class="btn btn-{shadowFilters['colour'] == colour ? 'dark' : 'light'} bg-gradient"
+							on:click={() => {
+								shadowFilters.colour = colour;
+							}}
+						>
+							<i class="fas fa-circle fa-lg shadow" style="color: {helpers.colormap[colour]}; text-shadow: 0 0 1px black;" />
+							{colour}
+						</button>
+					{/each}
+				{/await}
+			</div>
+		</div>
+		<!-- {/key} -->
+		{#key shadowFilters['Telcos:storage_size']}
+			<div class="btn-group mt-2 w-auto" role="group" aria-label="Button group name">
+				{#await lib.getjson('/api/distinct/Telcos:storage_size', niggate(shadowFilters, 'Telcos:storage_size'))}
+					<button class="btn btn-primary" type="button" disabled>
+						<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+						Loading...
+					</button>
+				{:then sz}
+					<button type="button" class="btn btn-primary btn-sm fw-bold"> Storage </button>
+
+					{#each sz as s}
+						<button
+							class="btn btn-{shadowFilters['Telcos:storage_size'] == s ? 'dark' : 'light'}  "
+							on:click={() => {
+								shadowFilters['Telcos:storage_size'] = s;
+							}}
+						>
+							{s}
+						</button>
+					{/each}
+				{/await}
+			</div>
+		{/key}
+
 		<!-- ------------------------------ -->
 		<div class="col-12 row mt-2 mt-lg-2 px-4" id="filters">
 			{#if shadowFilters && Object.keys(shadowFilters).length > 0}
@@ -155,23 +216,25 @@
 			{/if}
 		</div>
 	{/key}
-	{#if Object.keys(shadowFilters).length >= 2}
+	{#if Object.keys(shadowFilters).length >= 1}
 		<!-- content here -->
+		<!-- {#key common_names} -->
 		<div class="row col-12 ps-3 ps-lg-0 mx-auto my-lg-3">
 			{#if shadowFilters?.common_name}
 				<ProductModelCard cname={shadowFilters.common_name} bind:shadowFilters />
 				<!-- content here -->
 			{:else}
-				{#each data.common_names as cname}
+				{#each common_names as cname}
 					<ProductModelCard {cname} bind:shadowFilters />
 				{/each}
 			{/if}
 		</div>
+		<!-- {/key} -->
 	{:else}
 		<p class="lead text-danger m-0 mt-3">Please Select at least {3 - Object.keys(shadowFilters).length} More Attributes</p>
 	{/if}
 
-	{#if (shadowFilters?.common_name && shadowFilters?.colour && shadowFilters['Telcos:storage_size'])|| shadowFilters['Telcos:device_product_json.product_type'] === 'SIM Card' }
+	{#if (shadowFilters?.common_name && shadowFilters?.colour && shadowFilters['Telcos:storage_size']) || shadowFilters['Telcos:device_product_json.product_type'] === 'SIM Card'}
 		{#key oldShadow}
 			<h2 class="display-4 fw-bold">Available Deals</h2>
 			{#await updateDeals() then x}

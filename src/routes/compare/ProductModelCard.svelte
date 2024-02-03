@@ -1,11 +1,10 @@
 <script>
 	export let cname, shadowFilters;
 	import * as helpers from '$lib/helpers';
-	let meadowFilters = { ...shadowFilters };
 	// $: console.log(cname, filters,shadowFilters);
 </script>
 
-{#await helpers.getCommonNameVariety(cname, {...shadowFilters}) then details}
+{#await helpers.getCommonNameVariety(cname, { ...shadowFilters }) then details}
 	<div class="col-xxl-3 col-lg-4 col-12 mt-3 mt-xxl-2 p-xxl-2 p-1">
 		<button class="card h-100 border-black btn text-start shadow-sm" on:click={() => (shadowFilters.common_name = cname)}>
 			<div class="row g-0 h-100 mx-0">
@@ -16,8 +15,7 @@
 					<div class="card-body p-2 px-3 ps-0 g-1">
 						<h5 class="card-title fw-bold">{cname}</h5>
 
-						<div class="pt-0">
-							<!-- content here -->
+						<!-- <div class="pt-0">
 							{#each details.colours as colour}
 								<button
 									class="col-lg-auto col-auto btn mx-1 px-1 btn-sm shadow-sm btn-dark bg-gradient mt-lg-2 {shadowFilters['colour'] == colour ? '' : ''}"
@@ -26,14 +24,12 @@
 										shadowFilters.common_name = cname;
 									}}
 								>
-									<!-- fa -->
 									<i class="fas fa-circle fa-lg" style="color: {helpers.colormap[colour]};" />
 									{colour}
 								</button>
 							{/each}
-						</div>
-						<div class="mt-2 pt-2 border-top bor">
-							<!-- each sizes -->
+						</div> -->
+						<!-- <div class="mt-2 pt-2">
 							{#each details.sizes as size}
 								<button
 									class="col-lg-auto col-auto btn mx-1 px-1 btn-sm shadow-sm btn-dark bg-gradient {shadowFilters['Telcos:storage_size'] == size ? '' : ''}"
@@ -45,7 +41,7 @@
 									{size}
 								</button>
 							{/each}
-						</div>
+						</div> -->
 						<div class="desc pt-2" title={details.desc}>
 							{details.desc.replace(cname, '').slice(0, 120)}...
 						</div>
@@ -59,7 +55,7 @@
 <style>
 	.card-img {
 		transform: scale(1.1);
-		margin-left: -1em;
+		margin-left: -0.5em;
 		/* width: 90%; */
 		/* width: a; */
 	}
@@ -75,5 +71,9 @@
 	}
 	.card button {
 		font-size: 0.75em;
+	}
+	img {
+		max-height: 12em;
+		width: auto;
 	}
 </style>

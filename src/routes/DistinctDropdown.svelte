@@ -4,8 +4,11 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import shadowFilters from '$lib/stores/shadowFilters';
+
+	// $: console.log($shadowFilters);
 	let distincts = [];
-	onMount(async() => {
+	onMount(async () => {
 		distincts = await lib.getjson('api/distinct/' + qAttribute);
 	});
 </script>
@@ -33,7 +36,16 @@
 	</button>
 	<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
 		{#each distincts as item}
-			<li><a class="dropdown-item" href="/compare?{lib.qstringify({ [qAttribute]: item })}">{item}</a></li>
+			<li>
+				<button
+					class="dropdown-item"
+					on:click={() => {
+						$shadowFilters = { [qAttribute]: item };
+						goto(`/compare?${lib.qstringify($shadowFilters)}`, { invalidateAll: true });
+					}}
+					type="button">{item}</button
+				>
+			</li>
 		{/each}
 	</ul>
 </div>
