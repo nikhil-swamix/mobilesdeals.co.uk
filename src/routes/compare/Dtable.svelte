@@ -4,7 +4,12 @@
 	import 'datatables.net-buttons-bs5';
 	import 'datatables.net-responsive-bs5';
 	import { onMount, onDestroy } from 'svelte';
-	let table;
+	let table = new DataTable('#myTable', {
+		// autoWidth: true,
+		order: [[1, 'asc']],
+		pageLength: 25,
+		retrieve: true
+	});
 
 	function calcTotalCost(deal) {
 		const totalCost = deal['Telcos:month_cost'] * deal['Telcos:term'] + deal['Telcos:initial_cost'];
@@ -13,12 +18,7 @@
 
 	onMount(async () => {
 		try {
-			table = new DataTable('#myTable', {
-				// autoWidth: true,
-				order: [[1, 'asc']],
-				pageLength: 25,
-				retrieve: true,
-			});
+			// table =
 		} catch (error) {}
 	});
 	onDestroy(() => {
