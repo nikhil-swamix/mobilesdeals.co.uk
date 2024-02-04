@@ -89,7 +89,7 @@ class Pipelines:
         common_names = master_collection.distinct("common_name")
         print(f"Found {len(common_names)} common_names")
         # get one product for each common_name
-        with ThreadPoolExecutor(max_workers=32) as executor:
+        with ThreadPoolExecutor(max_workers=8) as executor:
             products = [
                 *executor.map(lambda common_name: Utils.reduce_products(common_name, master_collection), common_names)
             ]
@@ -449,7 +449,7 @@ def main():
 
     print(glob.glob('./pre/chunks/*.csv'))
 
-    P = ThreadPoolExecutor(24)
+    P = ThreadPoolExecutor(8)
     P.map(push_to_database, glob.glob('./pre/chunks/*.csv'))
     P.shutdown(wait=True)
     set_pipeline_restart_progress(70)
