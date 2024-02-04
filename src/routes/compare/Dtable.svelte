@@ -21,7 +21,7 @@
 		});
 	});
 	onDestroy(() => {
-		// table?.destroy();
+		table?.destroy();
 	});
 	function calcDataSort(deal) {
 		// deal['Telcos:tariff'] has integers and sometimes unlimited, we need to assign 999 to unlimited and integer to integer

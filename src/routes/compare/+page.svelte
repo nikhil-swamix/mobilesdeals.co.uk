@@ -262,16 +262,14 @@
 	{:else}
 		<p class="lead text-danger m-0 mt-3">Please Select Few More Filters</p>
 	{/if}
-	{#key $sf}
+	{#key shadowFilters}
 		{#if (shadowFilters?.common_name && shadowFilters?.colour && shadowFilters['Telcos:storage_size']) || shadowFilters['Telcos:device_product_json.product_type'] === 'SIM Card'}
 			<h2 class="display-4 fw-bold">Available Deals</h2>
-			{#if deals}
-				{#await updateDeals() then x}
-					{#if deals.length > 0}
-						<Dtable {deals} />
-					{/if}
-				{/await}
-			{/if}
+			{#await updateDeals() then x}
+				{#if deals.length > 0}
+					<Dtable {deals} />
+				{/if}
+			{/await}
 
 			<!-- content here -->
 		{/if}
