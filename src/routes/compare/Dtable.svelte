@@ -12,6 +12,8 @@
 	}
 
 	onMount(async () => {
+
+		table?.destroy();
 		table = new DataTable('#myTable', {
 			// autoWidth: true,
 			order: [[1, 'asc']],
