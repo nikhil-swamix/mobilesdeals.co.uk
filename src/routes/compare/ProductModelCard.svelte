@@ -1,12 +1,14 @@
 <script>
-	export let cname, shadowFilters;
+	export let cname;
 	import * as helpers from '$lib/helpers';
+	import shadowFilters from '$lib/stores/shadowFilters';
+
 	// $: console.log(cname, filters,shadowFilters);
 </script>
 
-{#await helpers.getCommonNameVariety(cname, { ...shadowFilters }) then details}
+{#await helpers.getCommonNameVariety(cname, {...$shadowFilters}) then details}
 	<div class="col-xxl-3 col-lg-4 col-12 mt-3 mt-xxl-2 p-xxl-2 p-1">
-		<button class="card h-100 border-black btn text-start shadow-sm" on:click={() => (shadowFilters.common_name = cname)}>
+		<button class="card h-100 border-black btn text-start shadow-sm" on:click={() => ($shadowFilters.common_name = cname)}>
 			<div class="row g-0 h-100 mx-0">
 				<div class="col-md-4 col-2 d-flex align-items-center p-0">
 					<img src={details.img} class="card-img img-fluid" alt="..." />
@@ -43,7 +45,7 @@
 							{/each}
 						</div> -->
 						<div class="desc pt-2" title={details.desc}>
-							{details.desc.replace(cname, '').slice(0, 120)}...
+							{details?.desc.replace(cname, '').slice(0, 120)}...
 						</div>
 					</div>
 				</div>

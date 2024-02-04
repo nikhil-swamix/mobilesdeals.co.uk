@@ -14,11 +14,15 @@ const MasterCatalog = mongoose.models.MasterCatalog || mongoose.model('MasterCat
 export async function GET({ url, params, setHeaders }) {
 	// console.log(url);
 	let findOpts = lib.qparse(url);
-	let limit = findOpts.limit || 100;
+	let limit = findOpts.limit || 200;
+	let projections = findOpts?.projections || '{}';
+	if (typeof projections == 'string') projections = JSON.parse(projections);
+	// console.log(JSON.parse(findOpts.projections));
 	delete findOpts.limit;
-	
+	delete findOpts.projections;
 	if (params.path == 'find') {
-		let docs = await MasterCatalog.find(findOpts).limit(limit);
+		limit = findOpts['Telcos:device_product_json.product_type'] == 'SIM Card' ? 1000 : limit;
+		let docs = await MasterCatalog.find(findOpts, projections).limit(limit);
 		setHeaders({
 			'Cache-Control': 'public,max-age=600'
 		});
@@ -41,7 +45,7 @@ export async function GET({ url, params, setHeaders }) {
 		} else {
 			docs = await MasterCatalog.distinct(distinctor, lib.qparse(url));
 			cache.set(hash, docs);
-			console.log('time:' +url.search+ distinctor, new Date() - t);
+			console.log('time:' + url.search + distinctor, new Date() - t);
 		}
 
 		return json(docs);

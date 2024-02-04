@@ -3,13 +3,13 @@
 	import * as lib from '$lib';
 	import { getCommonNames, getDistinctBrands, getDistinctTelcos, colormap, getDistinctSimProviders } from '$lib/helpers';
 	export let data;
+	import { goto } from '$app/navigation';
+	import shadowFilters from '$lib/stores/shadowFilters';
 
 	let commonNames = [];
 	let filteredResults = [];
 	let searchTerm = '';
 	let selections = {};
-
-
 
 	async function getDistinctColours() {
 		// remove null
@@ -39,7 +39,8 @@
 			window.location.href = `compare?${lib.qstringify(selections)}`;
 		}
 		if (selections.common_name) {
-			lib.goto(`compare?${lib.qstringify(selections)}`);
+			$shadowFilters.common_name = selections.common_name;
+			goto(`/compare?common_name=${selections.common_name}`, { invalidateAll: true });
 		}
 	}
 
@@ -63,15 +64,15 @@
 	});
 </script>
 
-<div class="container">
+<div class="px-lg-5">
 	<div class=" mt-3" id="autocomplete-input">
 		<div class="input-group input-group-lg mb-2 px-1">
-			<button class="btn btn-danger rounded-start-5" type="button" id="button-cancel" on:click={() => (searchTerm = '')}>
+			<button class="btn btn-danger rounded-start-3" type="button" id="button-cancel" on:click={() => (searchTerm = '')}>
 				<i class="fas fa-times-circle fa-lg" />
 			</button>
 			<input type="text" class="form-control shadow-sm" placeholder="Search Model or Brand" data-bs-title="Popover title" bind:value={searchTerm} bind:this={button} />
 
-			<button class="btn btn-primary rounded-end-5 px-lg-5" type="button" id="button-addon2">Search</button>
+			<button class="btn btn-primary rounded-end-3 px-lg-5" type="button" id="button-addon2">Search</button>
 		</div>
 		<div class="row ps-lg-3 ps-3 mb-2" id="#searchResults">
 			{#if searchTerm.length > 0}
@@ -131,20 +132,10 @@
 		{/if}
 	</div>
 	<!-- SELECTORS -->
-	<div class="row flex-lg-row-reverse d-flex mt-3 gap-3 gap-lg-0 h-100">
-		<div class="col my-auto" id="how-to-shop">
-			<div class="list-group flex-wrap align-self-baseline">
-				<span href="#" class="list-group-item list-group-item-action active bg-danger border-black bg-gradient fw-bold" aria-current="true">
-					<i class="fa-duotone fa-store-alt"></i>
-					HOW TO SHOP?
-				</span>
-				<span href="#" class="list-group-item list-group-item-action">Method 1: in the search bar type and select a model name</span>
-				<span href="#" class="list-group-item list-group-item-action">Method 2: select Network, Brand, Colour and size Listings section will auto update</span>
-				<span href="#" class="list-group-item list-group-item-action">now finally compare the plan in the bottom section</span>
-			</div>
-		</div>
+	<div class="row flex-lg-row-reverse d-flex mt-3 gap-3 gap-lg-0 h-100 mx-0 ">
+		
 		{#key [selections['Telcos:network'], selections.brand_name]}
-			<div class="col-auto col-lg-8 mb-2">
+			<div class="col-auto col-lg-12 mb-2 px-0">
 				<div class="list-group">
 					<a
 						href="#"
@@ -158,7 +149,7 @@
 						<div class="row justify-content-center">
 							{#each Object.entries(data.merchants) as [name, logo]}
 								<button
-									class="col-{['Three', 'Vodafone Ltd'].includes(name) ? '2' : '2'} btn"
+									class="col-lg-{['Three', 'Vodafone Ltd'].includes(name) ? '2' : '2'} col-3 btn"
 									on:click={() => {
 										selections['merchant_name'] = name;
 									}}
@@ -205,51 +196,50 @@
 			</div>
 		</div>
 	{/key}
+	<div class="row mt-lg-3 mx-0">
+		<div class="col-lg-6 mt-3 px-0">
+			<!-- list group -->
+			<div class="list-group" id="sim">
+				<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
+					<i class="fas fa-sim-card"></i>
+					SIM Cards
+				</a>
+				<div class="list-group-item">
+					<div class="row justify-content-center">
+						{#await getDistinctSimProviders() then value}
+							{#each value as obj}
+								<a class="col-auto mx-lg-3 btn" href="compare?{lib.qstringify(obj.filters)}">
+									<img src={obj.img} alt="" />
+								</a>
+							{/each}
+						{/await}
+					</div>
+				</div>
+			</div>
+		</div>
 
-	<div class="mt-3">
-		<!-- list group -->
-		<div class="list-group" id="sim">
-			<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
-				<i class="fas fa-sim-card"></i>
-				SIM Cards
-			</a>
-			<div class="list-group-item">
-				<div class="row justify-content-center">
-					{#await getDistinctSimProviders() then value}
-						{#each value as obj}
-							<a class="col-auto mx-lg-3 btn" href="compare?{lib.qstringify(obj.filters)}">
-								<img src={obj.img} alt="" />
-							</a>
-						{/each}
-					{/await}
+		<div class="col-lg-6 mt-3 px-0">
+			<div class="list-group">
+				<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
+					<i class="fa-duotone fa-router"></i>
+					Broadband Models
+				</a>
+				<div class="list-group-item">
+					<div class="row justify-content-center">
+						{#await getDistinctBroadbandModels() then value}
+							{#each value as img}
+								<button class="col-auto mx-lg-3 btn">
+									<img src={img} alt="" />
+								</button>
+							{/each}
+						{/await}
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<!-- broadband models -->
-	<div class="mt-3">
-		<!-- list group -->
-		<div class="list-group">
-			<a href="#" class="list-group-item text-center list-group-item-action active bg-dark border-black bg-gradient fw-bold" aria-current="true">
-				<i class="fa-duotone fa-router"></i>
-				Broadband Models
-			</a>
-			<div class="list-group-item">
-				<div class="row justify-content-center">
-					{#await getDistinctBroadbandModels() then value}
-						{#each value as img}
-							<button class="col-auto mx-lg-3 btn">
-								<img src={img} alt="" />
-							</button>
-						{/each}
-					{/await}
-				</div>
-			</div>
-		</div>
-	</div>
 
-	<div class="row mt-5">
-		<!-- Repeat this block for each product -->
+	<div class="row mt-5 mx-0">
 		<div class="col-12 col-md-6 col-lg-4 mb-4">
 			<div class="card">
 				<img src="img/mobiles/iphone.webp" class="card-img-top" alt="Phone" />

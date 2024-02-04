@@ -1,7 +1,7 @@
 <script>
 	// export let data;
 	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import * as lib from '$lib';
@@ -10,26 +10,32 @@
 	import Dtable from './Dtable.svelte';
 	import sf from '$lib/stores/shadowFilters';
 
-	let shadowFilters ;
-	let oldShadow ;
+	let shadowFilters = { ...$sf, ...lib.qparse($page.url) };
+	if (shadowFilters.common_name && shadowFilters.common_name.includes('  ')) {
+		shadowFilters.common_name = shadowFilters.common_name.replace('  ', '+ ');
+	}
+
 	let deals = [];
 	let table;
 	let common_names = [];
 	/* 	setInterval(() => { if (JSON.stringify(shadowFilters) != JSON.stringify(lib.qparse($page.url))) { lib.replaceState(`/compare?${lib.qstringify(shadowFilters)}`, $page.state); console.log(lib.qparse($page.url), shadowFilters); } }, 200); */
 	$: {
-		// console.log($sf);
-		shadowFilters = purify({ ...lib.qparse($page.url), ...$sf,...shadowFilters });
-
-		// $sf = shadowFilters;
-		if (JSON.stringify(shadowFilters) != JSON.stringify(oldShadow)) {
-			oldShadow = { ...shadowFilters };
+		if (Object.keys($sf).length != 1) {
+			shadowFilters = purify({ ...lib.qparse($page.url), ...$sf });
+		} else {
+			shadowFilters = $sf;
 		}
-		// shadowFilters = purify(shadowFilters);
-		if (JSON.stringify($sf) != JSON.stringify(lib.qparse($page.url))) {
-			lib.browser && lib.replaceState(`/compare?${lib.qstringify(shadowFilters)}`, $page.state);
-			shadowFilters = $sf
+		console.log(shadowFilters);
+
+		// console.log(Object.keys($sf).length != Object.keys(lib.qparse($page.url)).length);
+		if (Object.keys($sf).length != Object.keys(lib.qparse($page.url)).length) {
+			try {
+				lib.browser && lib.replaceState(`/compare?${lib.qstringify(shadowFilters)}`, $page.state);
+				shadowFilters = { ...$sf, ...lib.qparse($page.url), ...shadowFilters };
+			} catch (error) {}
 			console.log(lib.qparse($page.url), shadowFilters);
 		}
+		$sf = shadowFilters;
 
 		browser && lib.getjson('/api/distinct/common_name', shadowFilters).then((x) => (common_names = x));
 	}
@@ -48,9 +54,21 @@
 	}
 
 	async function updateDeals() {
-		// deals = [];
-		// table?.destroy();
-		deals = await lib.getjson('/api/find', shadowFilters);
+		let projections = {
+			'Telcos:deal_retailer_json.logo_url': 1,
+			'Telcos:deal_cost_json.monthly_total_inc_vat': 1,
+			'Telcos:initial_cost': 1,
+			'Telcos:deal_cost_json.tco_inc_vat': 1,
+			'Telcos:deal_cost_json.monthly_contract_term_months': 1,
+			'Telcos:inc_minutes': 1,
+			'Telcos:inc_texts': 1,
+			'Telcos:connectivity': 1,
+			'Telcos:tariff': 1,
+			_id: 1,
+			'Telcos:deal_type_json.deal_type_name': 1
+		};
+		projections = JSON.stringify(projections);
+		deals = await lib.getjson('/api/find', { ...shadowFilters, projections });
 		setTimeout(() => {
 			if (table) {
 				table = undefined;
@@ -61,6 +79,10 @@
 	}
 	onMount(async () => {
 		common_names = await lib.getjson('/api/distinct/common_name', shadowFilters);
+		// console.log(shadowFilters, common_names);
+	});
+	onDestroy(async () => {
+		sf.set({});
 	});
 </script>
 
@@ -122,7 +144,14 @@
 						{m}
 					</button>
 				{/each}
-				<button class="btn btn-danger" on:click={() => (shadowFilters['merchant_name'] = null)}>
+				<button
+					class="btn btn-danger"
+					on:click={async () => {
+						$sf = niggate(shadowFilters, 'merchant_name');
+						await goto(`/compare?${lib.qstringify(niggate(shadowFilters, 'merchant_name'))}`);
+						shadowFilters = niggate(shadowFilters, 'merchant_name');
+					}}
+				>
 					<i class="fas fa-times" />
 				</button>
 			{/await}
@@ -211,40 +240,34 @@
 					<button type="button" class="btn btn-warning btn-sm col-auto me-2 blink">Please select a Storage</button>
 				{/if}
 				<!-- <button class="btn btn-danger btn-sm" on:click={() => (filters = {})}>Clear</button> -->
-			{:else}
-				Please select a network and brand to start comparing
-			{/if}
+			{:else}{/if}
 		</div>
 	{/key}
 	{#if Object.keys(shadowFilters).length >= 1}
-		<!-- content here -->
-		<!-- {#key common_names} -->
 		<div class="row col-12 ps-3 ps-lg-0 mx-auto my-lg-3">
 			{#if shadowFilters?.common_name}
-				<ProductModelCard cname={shadowFilters.common_name} bind:shadowFilters />
-				<!-- content here -->
-			{:else}
+				<ProductModelCard cname={shadowFilters.common_name} />
+			{:else if common_names.length > 0}
 				{#each common_names as cname}
-					<ProductModelCard {cname} bind:shadowFilters />
+					<ProductModelCard {cname} />
 				{/each}
 			{/if}
 		</div>
-		<!-- {/key} -->
 	{:else}
-		<p class="lead text-danger m-0 mt-3">Please Select at least {3 - Object.keys(shadowFilters).length} More Attributes</p>
+		<p class="lead text-danger m-0 mt-3">Please Select Few More Filters</p>
 	{/if}
-
-	{#if (shadowFilters?.common_name && shadowFilters?.colour && shadowFilters['Telcos:storage_size']) || shadowFilters['Telcos:device_product_json.product_type'] === 'SIM Card'}
-		{#key oldShadow}
+	{#key $sf}
+		{#if (shadowFilters?.common_name && shadowFilters?.colour && shadowFilters['Telcos:storage_size']) || shadowFilters['Telcos:device_product_json.product_type'] === 'SIM Card'}
 			<h2 class="display-4 fw-bold">Available Deals</h2>
 			{#await updateDeals() then x}
 				{#if deals.length > 0}
 					<Dtable {deals} />
 				{/if}
 			{/await}
-		{/key}
-		<!-- content here -->
-	{/if}
+
+			<!-- content here -->
+		{/if}
+	{/key}
 </div>
 
 <!-- 

@@ -8,28 +8,27 @@
 	onMount(async () => {
 		table = new DataTable('#myTable', {
 			// autoWidth: true,
-            order: [[1, 'asc']],
-            pageLength: 25,
+			order: [[1, 'asc']],
+			pageLength: 25
 		});
 	});
 	onDestroy(() => {
 		table?.destroy();
 	});
-    function calcDataSort(deal) {
-        // deal['Telcos:tariff'] has integers and sometimes unlimited, we need to assign 999 to unlimited and integer to integer
-        // try using regex and parseint
-        let is_unlimited = deal['Telcos:tariff'].toLowerCase().includes('unlimited');
-        let int = parseInt(deal['Telcos:tariff'].replace(/[^0-9]/g, ''));
-        console.log(deal['Telcos:tariff'], is_unlimited, int);
-        if (is_unlimited) {
-            return 999;
-        } else if (int){
-            return int;
-        }
-        else {
-            return 0;
-        }
-    }
+	function calcDataSort(deal) {
+		// deal['Telcos:tariff'] has integers and sometimes unlimited, we need to assign 999 to unlimited and integer to integer
+		// try using regex and parseint
+		let is_unlimited = deal['Telcos:tariff'].toLowerCase().includes('unlimited');
+		let int = parseInt(deal['Telcos:tariff'].replace(/[^0-9]/g, ''));
+		// console.log(deal['Telcos:tariff'], is_unlimited, int);
+		if (is_unlimited) {
+			return 999;
+		} else if (int) {
+			return int;
+		} else {
+			return 0;
+		}
+	}
 </script>
 
 <table class="table fixed" id="myTable">
@@ -47,8 +46,8 @@
 	</thead>
 	<tbody>
 		{#each deals as deal}
-			<tr class="">
-				<td class="col">
+			<tr class=" ">
+				<td class="col p-1">
 					<img src={deal['Telcos:deal_retailer_json']['logo_url']} class="img-fluid" alt="..." />
 				</td>
 				<td class="">
@@ -98,15 +97,19 @@
 						<button type="button" class="btn btn-dark fw-normal">
 							{deal['Telcos:connectivity'].replace(/ /g, '')}
 						</button>
-						<button type="button" class="btn btn-outline-dark" >
+						<button type="button" class="btn btn-outline-dark">
 							{deal['Telcos:tariff']}
 						</button>
 					</div>
 				</td>
-				<td class="px-0">
+				<td class="px-0 py-0">
 					<a class="btn btn-success" href="deal?_id={deal._id}" target="_blank">
 						View Deal <i class="fa-duotone fa-cart-shopping-fast"></i>
 					</a>
+					{#if deal['Telcos:deal_type_json']['deal_type_name'] == 'Consumer - Affiliate Price'}
+						 <!-- content here -->
+						 <i class="fa-duotone fa-gift"></i>
+					{/if}
 				</td>
 			</tr>
 		{/each}
@@ -116,5 +119,8 @@
 <style>
 	table img {
 		max-height: 3em;
+	}
+	td {
+		vertical-align: middle;
 	}
 </style>
