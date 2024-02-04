@@ -18,7 +18,12 @@
 
 	onMount(async () => {
 		try {
-			// table =
+			table = new DataTable('#myTable', {
+				// autoWidth: true,
+				order: [[1, 'asc']],
+				pageLength: 25,
+				retrieve: true
+			});
 		} catch (error) {}
 	});
 	onDestroy(() => {
