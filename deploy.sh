@@ -4,3 +4,4 @@ git pull
 pnpm build      
 pm2 restart all
 exit
+# ok
