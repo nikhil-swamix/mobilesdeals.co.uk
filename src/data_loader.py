@@ -454,8 +454,19 @@ def main():
     P.shutdown(wait=True)
     set_pipeline_restart_progress(70)
 
-    make_indexes(COLLECTIONNAME, "product_name")
-    make_indexes(COLLECTIONNAME, "Telcos:deal_type_json.deal_type_name")
+    make_indexes(
+        COLLECTIONNAME,
+        [
+            "merchant_name",
+            "Telcos:network",
+            "brand_name",
+            "common_name",
+            "colour",
+            "Telcos:storage_size",
+            "Telcos:deal_type_json.deal_type_name",
+        ],
+    )
+
     # Pipelines.create_simple_catalog()
     unique_merchants_init()
     init_feed_merchant_map()
@@ -475,11 +486,23 @@ if __name__ == "__main__":
     # insert test doc
     # get_collection('MasterCatalogasdasd').insert_one({'test': 'test'})
     # get_full_catalog()
-    AdminPanel.initialize()
+    # AdminPanel.initialize()
 
-    main()
+    # main()
+    
+    make_indexes(
+        COLLECTIONNAME,
+        [
+            "merchant_name",
+            "Telcos:network",
+            "brand_name",
+            "common_name",
+            "colour",
+            "Telcos:storage_size",
+            "Telcos:deal_type_json.deal_type_name",
+        ],
+    )
     # print(os.getenv('MONGO_URI'))
-
 
     # unique_merchants_init()
     # split_csv_using_csv_module('./pre', chunk_size=500)

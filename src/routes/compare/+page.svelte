@@ -115,7 +115,10 @@
 					</button>
 				{/each}
 
-				<button class="btn btn-danger" on:click={() => (shadowFilters['Telcos:network'] = null)}>
+				<button class="btn btn-danger" on:click={() =>{
+					$sf = niggate(shadowFilters, 'Telcos:network');
+					shadowFilters['Telcos:network'] = undefined;
+				}}>
 					<i class="fas fa-times" />
 				</button>
 			{/await}
@@ -148,8 +151,8 @@
 					class="btn btn-danger"
 					on:click={async () => {
 						$sf = niggate(shadowFilters, 'merchant_name');
+						shadowFilters['merchant_name'] = undefined;
 						await goto(`/compare?${lib.qstringify(niggate(shadowFilters, 'merchant_name'))}`);
-						shadowFilters = niggate(shadowFilters, 'merchant_name');
 					}}
 				>
 					<i class="fas fa-times" />
