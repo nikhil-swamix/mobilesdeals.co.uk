@@ -265,11 +265,13 @@
 	{#key $sf}
 		{#if (shadowFilters?.common_name && shadowFilters?.colour && shadowFilters['Telcos:storage_size']) || shadowFilters['Telcos:device_product_json.product_type'] === 'SIM Card'}
 			<h2 class="display-4 fw-bold">Available Deals</h2>
-			{#await updateDeals() then x}
-				{#if deals.length > 0}
-					<Dtable {deals} />
-				{/if}
-			{/await}
+			{#if deals}
+				{#await updateDeals() then x}
+					{#if deals.length > 0}
+						<Dtable {deals} />
+					{/if}
+				{/await}
+			{/if}
 
 			<!-- content here -->
 		{/if}
