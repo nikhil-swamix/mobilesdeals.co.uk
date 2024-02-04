@@ -271,7 +271,7 @@
 				{/if}
 			{/await}
 
-			<!-- content here -->
+		
 		{/if}
 	{/key}
 </div>

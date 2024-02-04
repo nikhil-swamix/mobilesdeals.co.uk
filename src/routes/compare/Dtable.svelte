@@ -12,13 +12,13 @@
 	}
 
 	onMount(async () => {
-
-		table?.destroy();
-		table = new DataTable('#myTable', {
-			// autoWidth: true,
-			order: [[1, 'asc']],
-			pageLength: 25
-		});
+		try {
+			table = new DataTable('#myTable', {
+				// autoWidth: true,
+				order: [[1, 'asc']],
+				pageLength: 25
+			});
+		} catch (error) {}
 	});
 	onDestroy(() => {
 		table?.destroy();
