@@ -56,10 +56,8 @@
 	async function updateDeals() {
 		let projections = {
 			'Telcos:deal_retailer_json.logo_url': 1,
-			'Telcos:deal_cost_json.monthly_total_inc_vat': 1,
 			'Telcos:initial_cost': 1,
-			'Telcos:deal_cost_json.tco_inc_vat': 1,
-			'Telcos:deal_cost_json.monthly_contract_term_months': 1,
+			'Telcos:deal_cost_json': 1,
 			'Telcos:inc_minutes': 1,
 			'Telcos:inc_texts': 1,
 			'Telcos:connectivity': 1,
@@ -115,10 +113,13 @@
 					</button>
 				{/each}
 
-				<button class="btn btn-danger" on:click={() =>{
-					$sf = niggate(shadowFilters, 'Telcos:network');
-					shadowFilters['Telcos:network'] = undefined;
-				}}>
+				<button
+					class="btn btn-danger"
+					on:click={() => {
+						$sf = niggate(shadowFilters, 'Telcos:network');
+						shadowFilters['Telcos:network'] = undefined;
+					}}
+				>
 					<i class="fas fa-times" />
 				</button>
 			{/await}
