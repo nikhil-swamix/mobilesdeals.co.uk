@@ -4,12 +4,14 @@
 	import 'datatables.net-buttons-bs5';
 	import 'datatables.net-responsive-bs5';
 	import { onMount, onDestroy } from 'svelte';
-	let table = new DataTable('#myTable', {
-		// autoWidth: true,
-		order: [[1, 'asc']],
-		pageLength: 25,
-		retrieve: true
-	});
+	let rand = Math.random().toString(36).slice(2, 7);
+	let table;
+	// let table = new DataTable('#myTable', {
+	// 	// autoWidth: true,
+	// 	order: [[1, 'asc']],
+	// 	pageLength: 25,
+	// 	retrieve: true
+	// });
 
 	function calcTotalCost(deal) {
 		const totalCost = deal['Telcos:month_cost'] * deal['Telcos:term'] + deal['Telcos:initial_cost'];
@@ -18,13 +20,15 @@
 
 	onMount(async () => {
 		try {
-			table = new DataTable('#myTable', {
+			table = new DataTable('#' + rand, {
 				// autoWidth: true,
 				order: [[1, 'asc']],
 				pageLength: 25,
 				retrieve: true
 			});
-		} catch (error) {}
+		} catch (error) {
+			table?.destroy();
+		}
 	});
 	onDestroy(() => {
 		table?.destroy();
@@ -45,7 +49,7 @@
 	}
 </script>
 
-<table class="table fixed" id="myTable">
+<table class="table fixed" id={rand}>
 	<thead>
 		<tr>
 			<th class="m-0 p-0 h5">Retailer</th>
