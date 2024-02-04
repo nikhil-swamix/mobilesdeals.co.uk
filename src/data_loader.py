@@ -9,9 +9,6 @@ import time
 import tracemalloc
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from re import M
-from turtle import up
-
 import pandas as pd
 import requests
 from dotenv import load_dotenv
@@ -466,8 +463,8 @@ def main():
 
 
 DEBUG = 0
-DBNAME = os.getenv('DBNAME')
-CONNSTRING = os.getenv('MONGO_URI')
+DBNAME = os.getenv('DBNAME') or "mobilesdeals-co-uk"
+CONNSTRING = os.getenv('MONGO_URI') or "mongodb://localhost:27017/"
 
 COLLECTIONNAME = "MasterCatalog"
 ADMIN_PANEL = AdminPanel.get()
