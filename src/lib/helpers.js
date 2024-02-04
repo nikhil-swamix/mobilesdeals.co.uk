@@ -8,9 +8,9 @@ export async function getCommonNameVariety(common_name, filters) {
 	// let sizes = await lib.getjson('api/distinct/Telcos:storage_size', filters);
 	// let colours = await lib.getjson('api/distinct/colour', filters);
 	let sample = (await lib.getjson('api/find', { ...filters, limit: 1 }))[0];
-	let img = sample?.merchant_image_url;
-	if (!common_name.includes('Apple')) img = img?.replace('FFFFFF', 'transparent'); // exclude apple // console.log(img);
-	return { img,desc:sample?.description };
+	let img = sample?.merchant_thumb_url;
+	img = img?.replace('FFFFFF', 'transparent'); // exclude apple // console.log(img);
+	return { img, desc: sample?.description };
 }
 export async function getDistinctBrands(philters) {
 	let data = await lib.getjson('api/distinct/brand_name?' + lib.qstringify(philters));
@@ -64,7 +64,7 @@ export let colormap = {
 	Pink: '#cf00cf',
 	Purple: '#6f42c1',
 	Red: '#dc3545',
-	'Rose Gold': '#f3e5f5',
+	'Rose Gold': '#f7e0da',
 	Silver: '#ced4da',
 	White: '#ffffff',
 	Yellow: '#ffc107'
@@ -78,4 +78,11 @@ export let attrTranslate = {
 	brand_name: 'Brand',
 	merchant_name: 'Merchant',
 	'Telcos:device_product_json.product_type': 'Product Type'
+};
+
+let telcologomap = {
+	Three: 'img/networks/three.png',
+	Vodafone: 'img/networks/vodafone.png',
+	'iD Mobile': 'img/networks/idmobiles.png',
+	Virgin: 'img/networks/virgin.png'
 };

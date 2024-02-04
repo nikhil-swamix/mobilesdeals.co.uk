@@ -5,6 +5,12 @@
 	import 'datatables.net-responsive-bs5';
 	import { onMount, onDestroy } from 'svelte';
 	let table;
+
+	function calcTotalCost(deal) {
+		const totalCost = deal['Telcos:month_cost'] * deal['Telcos:term'] + deal['Telcos:initial_cost'];
+		return totalCost.toFixed(2);
+	}
+
 	onMount(async () => {
 		table = new DataTable('#myTable', {
 			// autoWidth: true,
@@ -53,7 +59,7 @@
 				<td class="">
 					<button type="button" class="btn btn-outline-dark btn-sm fw-bold">
 						<i class="fa-duotone fa-pound-sign"></i>
-						{deal['Telcos:deal_cost_json']['monthly_total_inc_vat']}
+						{deal['Telcos:month_cost'] || deal['Telcos:deal_cost_json']['monthly_total_inc_vat']}
 					</button>
 				</td>
 				<td class="px-0">
@@ -63,7 +69,7 @@
 				<td class="px-0">
 					<button type="button" class="btn btn-outline-dark btn-sm fw-bold">
 						<i class="fa-duotone fa-pound-sign"></i>
-						{deal['Telcos:deal_cost_json']['tco_inc_vat']}
+						{calcTotalCost(deal)}
 					</button>
 				</td>
 				<td class="px-0">
@@ -72,7 +78,7 @@
 							<i class="fa-duotone fa-fw fa-timer"></i>
 						</button>
 						<button type="button" class="btn btn-outline-dark">
-							{deal['Telcos:deal_cost_json']['monthly_contract_term_months']} Mo
+							{deal['Telcos:term']} Mo
 						</button>
 					</div>
 				</td>
@@ -107,8 +113,8 @@
 						View Deal <i class="fa-duotone fa-cart-shopping-fast"></i>
 					</a>
 					{#if deal['Telcos:deal_type_json']['deal_type_name'] == 'Consumer - Affiliate Price'}
-						 <!-- content here -->
-						 <i class="fa-duotone fa-gift"></i>
+						<!-- content here -->
+						<i class="fa-duotone fa-gift"></i>
 					{/if}
 				</td>
 			</tr>

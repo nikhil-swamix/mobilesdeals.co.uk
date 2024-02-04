@@ -1,24 +1,16 @@
 <script>
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import * as lib from '$lib';
 	import { getCommonNames, getDistinctBrands, getDistinctTelcos, colormap, getDistinctSimProviders } from '$lib/helpers';
 	export let data;
-	import { goto } from '$app/navigation';
 	import shadowFilters from '$lib/stores/shadowFilters';
-
+	import AffiliateBrowser from './AffiliateBrowser.svelte';
 	let commonNames = [];
 	let filteredResults = [];
 	let searchTerm = '';
 	let selections = {};
 
-	async function getDistinctColours() {
-		// remove null
-		return (await lib.getjson('api/distinct/colour?' + lib.qstringify(selections))).filter((c) => c != null);
-	}
-	// Telcos:storage_size
-	async function getDistinctSizes() {
-		return await lib.getjson('api/distinct/Telcos:storage_size?' + lib.qstringify(selections));
-	}
 
 	async function getDistinctBroadbandModels(ptype = 'Mobile Wi-Fi') {
 		let items = await lib.getjson('api/distinct/common_name?Telcos:device_product_json.product_type=Mobile Wi-Fi' + lib.qstringify(selections));
@@ -45,12 +37,7 @@
 	}
 
 	// [ "Three", "Vodafone", "iD Mobile" ] url pattern /img/networks/
-	let telcologomap = {
-		Three: 'img/networks/three.png',
-		Vodafone: 'img/networks/vodafone.png',
-		'iD Mobile': 'img/networks/idmobiles.png',
-		Virgin: 'img/networks/virgin.png'
-	};
+
 
 	async function filterSearchResults(value) {
 		filteredResults = commonNames.filter((commonName) => commonName.toLowerCase().includes(value.toLowerCase()));
@@ -132,8 +119,7 @@
 		{/if}
 	</div>
 	<!-- SELECTORS -->
-	<div class="row flex-lg-row-reverse d-flex mt-3 gap-3 gap-lg-0 h-100 mx-0 ">
-		
+	<div class="row flex-lg-row-reverse d-flex mt-3 gap-3 gap-lg-0 h-100 mx-0">
 		{#key [selections['Telcos:network'], selections.brand_name]}
 			<div class="col-auto col-lg-12 mb-2 px-0">
 				<div class="list-group">
@@ -239,25 +225,7 @@
 		</div>
 	</div>
 
-	<div class="row mt-5 mx-0">
-		<div class="col-12 col-md-6 col-lg-4 mb-4">
-			<div class="card">
-				<img src="img/mobiles/iphone.webp" class="card-img-top" alt="Phone" />
-				<div class="card-body">
-					<h5 class="card-title">Iphone 15 Models</h5>
-					<p class="card-text">Some quick example text to build on the product name and make up the bulk of the card's content.</p>
-					<div class="d-flex justify-content-between align-items-center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-							<button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-						</div>
-						<small class="text-muted">9 mins ago</small>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- End product block -->
-	</div>
+	<AffiliateBrowser />
 </div>
 
 <style>

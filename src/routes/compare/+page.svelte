@@ -58,6 +58,8 @@
 			'Telcos:deal_retailer_json.logo_url': 1,
 			'Telcos:initial_cost': 1,
 			'Telcos:deal_cost_json': 1,
+			'Telcos:month_cost': 1,
+			'Telcos:term': 1,
 			'Telcos:inc_minutes': 1,
 			'Telcos:inc_texts': 1,
 			'Telcos:connectivity': 1,

@@ -17,11 +17,21 @@ export async function GET({ url, params, setHeaders }) {
 	let limit = findOpts.limit || 200;
 	let projections = findOpts?.projections || '{}';
 	if (typeof projections == 'string') projections = JSON.parse(projections);
-	// console.log(JSON.parse(findOpts.projections));
 	delete findOpts.limit;
 	delete findOpts.projections;
 	if (params.path == 'find') {
-		limit = findOpts['Telcos:device_product_json.product_type'] == 'SIM Card' ? 1000 : limit;
+		limit = limit !=1 && findOpts['Telcos:device_product_json.product_type'] == 'SIM Card' ? 1000 : limit;
+		if (findOpts?.['Telcos:deal_type_json.deal_type_name'] == 'Consumer - Affiliate Price') {
+			// let docs = await MasterCatalog.sample(20);
+			let docs = await MasterCatalog.aggregate([
+				{ $match: { 'Telcos:deal_type_json.deal_type_name': 'Consumer - Affiliate Price' } },
+				{ $sample: { size: 20 } },
+				
+			]);
+			console.log(findOpts);
+
+			return json(docs);
+		}
 		let docs = await MasterCatalog.find(findOpts, projections).limit(limit);
 		setHeaders({
 			'Cache-Control': 'public,max-age=600'

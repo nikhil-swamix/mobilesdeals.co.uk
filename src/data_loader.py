@@ -209,17 +209,16 @@ def get_full_catalog():
         "Telcos%3Adevice_product_version_json",
         "Telcos%3Ainitial_cost",
         "Telcos%3Amonth_cost",
+        "Telcos%3Aterm",
         "Telcos%3Atariff",
         "Telcos%3Ainc_minutes",
         "Telcos%3Ainc_texts",
         "Telcos%3Aconnectivity",
         "Telcos%3Ainc_data",
         "Telcos%3Astorage_size",
-        # "Telcos%3Adevice_specifications_json",
-        # "Telcos%3Adeal_extras_json",
         "Telcos%3Adeal_retailer_json",
         "Telcos%3Adeal_type_json",
-        "Telcos%3Adeal_cost_json",
+        # "Telcos%3Adeal_cost_json",
         "data_feed_id",
     ]
     # remove all csv.zip files from pre folder
@@ -375,7 +374,7 @@ class AdminPanel:
             get_collection(AP).insert_one(ID)
             return get_collection(AP).find_one(ID)
 
-        print("LOG: AdminPanel: ", COL.find_one(ID))
+        # print("LOG: AdminPanel: ", COL.find_one(ID))
         return COL.find_one(ID)
 
     def update(data):
@@ -479,7 +478,7 @@ CONNSTRING = os.getenv('MONGO_URI') or "mongodb://localhost:27017/"
 
 COLLECTIONNAME = "MasterCatalog"
 ADMIN_PANEL = AdminPanel.get()
-VENDOR_IDS = ['18901', '11645', '11655', '11653', '33153', "13045"]
+VENDOR_IDS = ['18901', '11645', '11655', '11653', "13045"]
 
 
 if __name__ == "__main__":
@@ -488,8 +487,8 @@ if __name__ == "__main__":
     # get_full_catalog()
     # AdminPanel.initialize()
 
-    # main()
-    
+    main()
+
     make_indexes(
         COLLECTIONNAME,
         [

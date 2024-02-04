@@ -22,7 +22,7 @@
 			</div>
 			<div class="row col-12 col-lg-9">
 				<h2>
-					{deal.product_name}
+					{deal.product_name.replace('(Consumer - Affiliate Price)', '')}
 				</h2>
 				<div class="deal-description">
 					<p>{deal.description}</p>
